@@ -5,7 +5,6 @@ export const env = {
   port: process.env.PORT || 3000,
   environment: process.env.ENV || "develop",
 };
-console.log(env);
 
 export const db = {
   port: process.env.BD_PORT || 3306,

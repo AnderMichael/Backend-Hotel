@@ -7,7 +7,7 @@ export class Client {
     email: string;
     hashedPassword: string;
 
-    constructor(clientEntity: Partial<IClientEntity>) {
+    constructor(clientEntity: IClientEntity) {
         this.id = clientEntity.id || uuidv4();
         this.username = clientEntity.username;
         this.email = clientEntity.email;

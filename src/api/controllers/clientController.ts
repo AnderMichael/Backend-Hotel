@@ -35,7 +35,9 @@ export class ClientController {
 
     res.json(clientDto);
   }
+
   public routes() {
     this.router.post("/", this.createClient.bind(this));
+    this.router.get("/:clientId", this.getClientById.bind(this));
   }
 }
