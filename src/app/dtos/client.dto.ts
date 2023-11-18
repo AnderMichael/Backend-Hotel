@@ -1,5 +1,5 @@
 export interface ClientDTO {
-  id: string;
+  id?: string;
   username: string;
   email: string;
 }

@@ -24,7 +24,6 @@ export class ClientService {
     }
 
     const clientResponse: ClientDTO = {
-      id: client.id,
       username: client.username,
       email: client.email,
     };
