@@ -12,6 +12,9 @@ export class UserService {
       username: userDTO.username,
       email: userDTO.email,
       hashedPassword: userDTO.password,
+      createdAt: new Date(),
+      modifiedAt: new Date(),
+      lastLogin: null,
     };
     const newUser = new User(userEntity);
     return this.userRepository.createUser(newUser);
@@ -26,6 +29,9 @@ export class UserService {
     const userResponse: UserDTO = {
       username: user.username,
       email: user.email,
+      createdAt: user.createdAt,
+      modifiedAt: user.modifiedAt,
+      lastLogin: user.lastLogin,
     };
     return userResponse;
   }
@@ -42,6 +48,9 @@ export class UserService {
     const userResponse: UserDTO = {
       username: user.username,
       email: user.email,
+      createdAt: user.createdAt,
+      modifiedAt: user.modifiedAt,
+      lastLogin: user.lastLogin,
     };
     return userResponse;
   }

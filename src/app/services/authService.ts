@@ -6,51 +6,55 @@ import { UserDTO } from "../dtos/user.dto";
 import { User } from "../../domain/models/user";
 import bcrypt from "bcrypt";
 import { TokenGenerator } from "../utils/generateToken";
-import { UserEntity } from "../../infrastructure/entities/userEntity";
 
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
-    private encrypt: TokenGenerator,
+    private encrypt: TokenGenerator
   ) {}
+
   async login(loginDTO: LoginDTO): Promise<UserDTO> {
-    const userEntity: Partial<IUserEntity> = {
-      email: loginDTO.email,
-      hashedPassword: loginDTO.password,
-    };
+    try {
+      const userEntity: Partial<IUserEntity> = {
+        email: loginDTO.email,
+        hashedPassword: loginDTO.password,
+      };
 
-    const user: User = await this.userRepository.findByEmail(userEntity.email);
-    console.log(
-      "🚀 ~ file: authService.ts:42 ~ AuthService ~ login ~ user:",
-      user
-    );
-    if (!user) {
-      logger.error(`El usuario con email: ${userEntity.email} no existe`);
-      throw new Error("El email o la contraseña son incorrectos");
+      const user: User = await this.userRepository.findByEmail(userEntity.email);
+
+      if (!user) {
+        logger.error(`User with email ${userEntity.email} does not exist`);
+        throw new Error("Email or password is incorrect");
+      }
+
+      const isPasswordValid = await bcrypt.compare(
+        userEntity.hashedPassword || "",
+        user.hashedPassword
+      );
+
+      if (!isPasswordValid) {
+        logger.error(`Incorrect password for user with email ${userEntity.email}`);
+        throw new Error("Email or password is incorrect");
+      }
+
+      const token = this.encrypt.encrypt({ userId: user.id });
+      user.token = token;
+      user.lastLogin = new Date();
+
+      const userUpdated = await this.userRepository.updateUser(user.id, user);
+
+      return {
+        id: userUpdated.id,
+        username: userUpdated.username,
+        email: userUpdated.email,
+        lastLogin: userUpdated.lastLogin,
+        createdAt: userUpdated.createdAt,
+        modifiedAt: userUpdated.modifiedAt,
+        token: user.token,
+      };
+    } catch (error) {
+      logger.error(`Error during login: ${error}`);
+      throw error;
     }
-
-    const isPasswordValid = await bcrypt.compare(
-      userEntity.hashedPassword || "",
-      user.hashedPassword
-    );
-    if (!isPasswordValid) {
-      logger.error(`La contraseña del usuario es incorrecta`);
-      throw new Error("El email o la contraseña son incorrectos");
-    }
-
-    const token = this.encrypt.encrypt({ userId: user.id });
-    user.token = token;
-    user.lastLogin = new Date();
-
-    const userUpdated = await this.userRepository.updateUser(user.id, user);
-
-    // TODO: se deberia modificar el token y tambien el lastlogin
-    return {
-      id: userUpdated.id,
-      username: userUpdated.username,
-      email: userUpdated.email,
-      lastLogin: userUpdated.lastLogin,
-      token: user.token,
-    };
   }
 }

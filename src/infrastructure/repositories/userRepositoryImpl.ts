@@ -32,6 +32,9 @@ export class UserRepositoryImpl implements UserRepository {
         username: user.username,
         email: user.email,
         hashedPassword: hashedPassword,
+        createdAt: user.createdAt,
+        modifiedAt: user.modifiedAt,
+        lastLogin: user.lastLogin,
       });
 
       const userResponse = await userRepository.save(userEntity);
@@ -41,6 +44,9 @@ export class UserRepositoryImpl implements UserRepository {
         username: userResponse.username,
         email: userResponse.email,
         hashedPassword: userResponse.hashedPassword,
+        createdAt: userResponse.createdAt,
+        modifiedAt: userResponse.createdAt,
+        lastLogin: userResponse.lastLogin,
       });
     } catch (error) {
       logger.error(`Error creating client: ${error}`);
@@ -69,7 +75,6 @@ export class UserRepositoryImpl implements UserRepository {
 
   async updateUser(userId: string, updateData: Partial<User>): Promise<User> {
     const repository = AppDataSource.getRepository(UserEntity);
-
     try {
       const user = await repository.findOne({ where: { id: userId } });
 
@@ -78,7 +83,7 @@ export class UserRepositoryImpl implements UserRepository {
           `userRepository: Error updating client with ID: ${userId}. Client not found.`
         );
       }
-
+      updateData.modifiedAt = new Date();
       repository.merge(user, updateData);
       const updatedUser = await repository.save(user);
       return updatedUser;
