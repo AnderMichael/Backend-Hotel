@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { db } from "../../infrastructure/config/config";
+import { HotelEntity } from "../entities/hotelEntity";
 import { UserEntity } from "../entities/userEntity";
 
 export const AppDataSource = new DataSource({
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
   database: db.database,
   synchronize: true,
   logging: false,
-  entities: [UserEntity], // ! Agregar entities una vez creadas
+  entities: [HotelEntity, UserEntity], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],
 });
