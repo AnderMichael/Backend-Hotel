@@ -3,6 +3,7 @@ import { IUserEntity } from "../../domain/entities/IUserEntity";
 
 @Entity()
 export class UserEntity implements IUserEntity {
+
     @PrimaryGeneratedColumn("uuid")
     id!: string;
   
@@ -14,4 +15,13 @@ export class UserEntity implements IUserEntity {
     
     @Column({ type: "varchar" })
     hashedPassword!: string;
+
+    @Column({ type: "timestamp", nullable: true })
+    lastLogin!: Date | null;
+
+    @Column({ type: "timestamp" })
+    createdAt!: Date;
+
+    @Column({ type: "timestamp" })
+    modifiedAt!: Date;
 }

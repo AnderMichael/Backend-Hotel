@@ -3,6 +3,7 @@ export interface IUserEntity {
     username: string;
     email: string;
     hashedPassword: string;
+    createdAt: Date;
+    modifiedAt: Date;
     lastLogin: Date | null;
-    token: string | null;
 }
