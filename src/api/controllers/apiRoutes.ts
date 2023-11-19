@@ -1,15 +1,15 @@
-import { ClientService } from "../../app/services/clientService";
-import { ClientRepositoryImpl } from "../../infrastructure/repositories/clientRepositoryImpl";
-import { ClientController } from "./clientController";
+import { UserService } from "../../app/services/userService";
+import { UserRepositoryImpl } from "../../infrastructure/repositories/userRepositoryImpl";
+import { UserController } from "./userController";
 
 const API: string = "/api";
 
-const clientRepository = new ClientRepositoryImpl();
-const clientService = new ClientService(clientRepository);
-const clientController = new ClientController(clientService);
+const userRepository = new UserRepositoryImpl();
+const userService = new UserService(userRepository);
+const userController = new UserController(userService);
 
 export const routes = (server: any) => {
-  server.use(`${API}/clients`, clientController.router);
+  server.use(`${API}/users`, userController.router);
   //   server.use(`${API}/roles`, roleController.router);
   //   server.use(`${API}/auth`, authController.router);
 };

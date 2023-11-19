@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-import { IClientEntity } from "../../domain/entities/IClientEntity";
+import { IUserEntity } from "../../domain/entities/IUserEntity";
 
 @Entity()
-export class ClientEntity implements IClientEntity {
+export class UserEntity implements IUserEntity {
     @PrimaryGeneratedColumn("uuid")
     id!: string;
   
