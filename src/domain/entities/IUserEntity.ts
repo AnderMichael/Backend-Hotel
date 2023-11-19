@@ -1,4 +1,4 @@
-export interface IClientEntity {
+export interface IUserEntity {
     id?: string;
     username: string;
     email: string;
