@@ -22,13 +22,17 @@ const userController = new UserController(userService);
 const authService = new AuthService(userRepository, encrypt);
 const authController = new AuthController(authService);
 
-const hotelRepository = new HotelRepositoryImpl();
-const hotelService = new HotelService(hotelRepository);
-const hotelController = new HotelController(hotelService);
-
 const roomRepository = new RoomRepositoryImpl();
+const hotelRepository = new HotelRepositoryImpl();
+
+
 const roomService = new RoomService(roomRepository, hotelRepository);
 const roomController = new RoomController(roomService);
+
+const hotelService = new HotelService(hotelRepository, roomRepository);
+const hotelController = new HotelController(hotelService);
+
+
 
 export const routes = (server: any) => {
   server.use(`${API}/users`, userController.router);
