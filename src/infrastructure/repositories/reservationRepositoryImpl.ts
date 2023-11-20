@@ -10,7 +10,9 @@ export class ReservationRepositoryImpl implements ReservationRepository {
       logger.info("Finding all reservations in ReservationRepositoryImpl");
       const reservationRepository =
         AppDataSource.getRepository(ReservationEntity);
-      const reservations = await reservationRepository.find();
+      const reservations = await reservationRepository.find({
+        relations: ["room", "user"],
+      });
       return reservations.map((reservation) => new Reservation(reservation));
     } catch (error) {
       logger.error(
@@ -30,6 +32,7 @@ export class ReservationRepositoryImpl implements ReservationRepository {
         AppDataSource.getRepository(ReservationEntity);
       const reservation = await reservationRepository.findOne({
         where: { id },
+        relations: ["room", "user"],
       });
       return reservation ? new Reservation(reservation) : null;
     } catch (error) {
