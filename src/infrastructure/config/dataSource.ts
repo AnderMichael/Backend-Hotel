@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { DataSource } from "typeorm";
 import { db } from "../../infrastructure/config/config";
 import {HotelEntity} from "../entities/hotelEntity";
+import {RoleEntity} from "../entities/roleEntity";
 
 export const AppDataSource = new DataSource({
   type: db.type as "mysql" | "mariadb",
@@ -12,7 +13,7 @@ export const AppDataSource = new DataSource({
   database: db.database,
   synchronize: true,
   logging: false,
-  entities: [HotelEntity], // ! Agregar entities una vez creadas
+  entities: [HotelEntity,RoleEntity], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],
 });

@@ -7,6 +7,9 @@ import { AppDataSource } from "./infrastructure/config/dataSource";
 import logger from "./infrastructure/logger/logger";
 import { env } from "./infrastructure/config/config";
 import { routes } from "./api/controllers/apiRoutes";
+import {RoleRepositoryImpl} from "./infrastructure/repositories/roleRepository";
+import {RoleService} from "./app/services/roleService";
+import {RoleController} from "./api/controllers/roleController";
 
 AppDataSource.initialize()
   .then(() => {
@@ -14,6 +17,10 @@ AppDataSource.initialize()
     dotenv.config();
 
     const PORT = env.port;
+
+      const roleRepository = new RoleRepositoryImpl();
+      const roleService = new RoleService(roleRepository);
+      const roleController = new RoleController(roleService);
 
     app.use(express.json());
 

@@ -9,7 +9,7 @@ export class Hotel {
     location: string;
     createdAt:Date;
 
-    constructor(hotelEntity: Partial<IHotelEntity>) {
+    constructor(hotelEntity: IHotelEntity) {
         this.id = hotelEntity.id || uuidv4();
         this.name = hotelEntity.name;
         this.roomsTotal = hotelEntity.roomsTotal;

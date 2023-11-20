@@ -12,7 +12,7 @@ export class Room {
     hotel: IHotelEntity;
     price: number;
 
-    constructor(roomEntity: Partial<IRoomEntity>) {
+    constructor(roomEntity: IRoomEntity) {
         this.id=roomEntity.id || uuidv4();
         this.number=roomEntity.number;
         this.available=roomEntity.available;
