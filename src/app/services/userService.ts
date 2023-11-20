@@ -10,7 +10,7 @@ export class UserService {
 
   async createUser(userDTO: CreateUserDTO): Promise<User> {
     try {
-      const userEntity: IUserEntity = {
+      const userEntity: Partial<IUserEntity> = {
         username: userDTO.username,
         email: userDTO.email,
         hashedPassword: userDTO.password,

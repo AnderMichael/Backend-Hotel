@@ -4,6 +4,7 @@ import { db } from "../../infrastructure/config/config";
 import { HotelEntity } from "../entities/hotelEntity";
 import { UserEntity } from "../entities/userEntity";
 import { RoomEntity } from "../entities/roomEntity";
+import { ReservationEntity } from "../entities/reservationEntity";
 
 export const AppDataSource = new DataSource({
   type: db.type as "mysql" | "mariadb",
@@ -14,7 +15,7 @@ export const AppDataSource = new DataSource({
   database: db.database,
   synchronize: true,
   logging: false,
-  entities: [HotelEntity, UserEntity, RoomEntity], // ! Agregar entities una vez creadas
+  entities: [HotelEntity, UserEntity, RoomEntity, ReservationEntity], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],
 });

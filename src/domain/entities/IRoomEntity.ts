@@ -1,4 +1,5 @@
 import { IHotelEntity } from "./IHotelEntity";
+import { IReservationEntity } from "./IReservationEntity";
 export interface IRoomEntity {
   id?: string;
   number: number;
@@ -9,4 +10,5 @@ export interface IRoomEntity {
   modifiedAt: Date;
   hotel: IHotelEntity;
   price: number;
+  reservations?: IReservationEntity[];
 }

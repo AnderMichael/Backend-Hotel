@@ -12,7 +12,7 @@ export class User {
   modifiedAt: Date;
   token?: string | null;
 
-  constructor(userEntity: IUserEntity) {
+  constructor(userEntity: Partial<IUserEntity>) {
     this.id = userEntity.id || uuidv4();
     this.username = userEntity.username;
     this.email = userEntity.email;

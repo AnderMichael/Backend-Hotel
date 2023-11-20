@@ -9,6 +9,7 @@ import {
 import { IRoomEntity } from "../../domain/entities/IRoomEntity";
 import { HotelEntity } from "./hotelEntity";
 import { IHotelEntity } from "../../domain/entities/IHotelEntity";
+import { ReservationEntity } from "./reservationEntity";
 
 @Entity()
 export class RoomEntity implements IRoomEntity {
@@ -39,4 +40,7 @@ export class RoomEntity implements IRoomEntity {
   
   @Column({ type: "timestamp" })
   modifiedAt: Date;
+
+  @OneToMany(() => ReservationEntity, (reservation) => reservation.room)
+  reservations: ReservationEntity[];
 }
