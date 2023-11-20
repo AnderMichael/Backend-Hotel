@@ -1,3 +1,5 @@
+import { ReservationDTO } from "./reservation.dto";
+
 export interface UserDTO {
   id?: string;
   username: string;
@@ -5,5 +7,6 @@ export interface UserDTO {
   createdAt: Date;
   modifiedAt: Date;
   lastLogin: Date | null;
-  token?: string
+  token?: string;
+  reservations: Partial<ReservationDTO>[];
 }

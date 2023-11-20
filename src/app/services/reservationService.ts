@@ -8,6 +8,9 @@ import { User } from "../../domain/models/user";
 import { UserRepository } from "../../domain/interfaces/userRepository";
 import { Room } from "../../domain/models/room";
 import { RoomRepository } from "../../domain/interfaces/roomRepository";
+import { REMAINING } from "../utils/constants";
+import { RoomDto } from "../dtos/room.dto";
+import { UserDTO } from "../dtos/user.dto";
 
 export class ReservationService {
   constructor(
@@ -15,6 +18,104 @@ export class ReservationService {
     private userRepository: UserRepository,
     private roomRepository: RoomRepository
   ) {}
+
+  async getRemainingReservationsRoom(
+    roomId: string
+  ): Promise<Partial<RoomDto> | null> {
+    try {
+      const reservations: Reservation[] =
+        await this.reservationRepository.findAll();
+
+      const room: Room = await this.roomRepository.findById(roomId);
+
+      const remainingReservations = reservations
+        .filter(
+          (reservation) =>
+            reservation.room.id === roomId && reservation.status === REMAINING
+        )
+        .map((reservation) => {
+          return {
+            user: reservation.user,
+            reservationInit: reservation.reservationInit,
+            reservationEnd: reservation.reservationEnd,
+            payment: reservation.payment,
+            status: reservation.status,
+          };
+        });
+
+      const roomDto: Partial<RoomDto> = {
+        number: room.number,
+        capacity: room.capacity,
+        category: room.category,
+        price: room.price,
+        hotel: room.hotel,
+        reservations: remainingReservations,
+      };
+
+      logger.debug(
+        `Remaining reservations retrieved for room with ID ${roomId}:`,
+        roomDto.reservations
+      );
+
+      return roomDto;
+    } catch (error) {
+      logger.error(
+        `Error getting remaining reservations for room with ID ${roomId}:`,
+        error
+      );
+      return null;
+    }
+  }
+
+  async getRemainingReservationsUser(
+    userId: string
+  ): Promise<Partial<UserDTO> | null> {
+    try {
+      logger.info(
+        `Getting remaining reservations for user with ID ${userId} in ReservationService`
+      );
+
+      const reservations: Reservation[] =
+        await this.reservationRepository.findAll();
+
+      const user: User = await this.userRepository.findById(userId);
+
+      const remainingReservations = reservations
+        .filter(
+          (reservation) =>
+            reservation.user.id === userId && reservation.status === REMAINING
+        )
+        .map((reservation) => {
+          return {
+            room: reservation.room,
+            reservationInit: reservation.reservationInit,
+            reservationEnd: reservation.reservationEnd,
+            payment: reservation.payment,
+            status: reservation.status,
+          };
+        });
+
+      const userDto: Partial<UserDTO> = {
+        username: user.username,
+        email: user.email,
+        lastLogin: user.lastLogin,
+        reservations: remainingReservations,
+      };
+
+      logger.debug(
+        `Remaining reservations retrieved for user with ID ${userId} in ReservationService:`,
+        userDto.reservations
+      );
+
+      return userDto;
+    } catch (error) {
+      logger.error(
+        `Error getting remaining reservations for user with ID ${userId} in ReservationService:`,
+        error
+      );
+      throw new Error("Internal Server Error");
+    }
+  }
 
   async createReservation(
     reservationDTO: CreateReservationDTO
@@ -31,7 +132,7 @@ export class ReservationService {
       const reservationEntity: Partial<IReservationEntity> = {
         user: user,
         room: room,
-        status: "Remaining",
+        status: REMAINING,
         reservationInit: reservationDTO.reservationInit,
         reservationEnd: reservationDTO.reservationEnd,
         payment: reservationDTO.payment,
