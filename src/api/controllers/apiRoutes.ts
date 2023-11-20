@@ -13,6 +13,9 @@ import { HotelController } from "./hotelController";
 import { ReservationController } from "./reservationController";
 import { RoomController } from "./roomController";
 import { UserController } from "./userController";
+import {RoleRepositoryImpl} from "../../infrastructure/repositories/roleRepository";
+import {RoleService} from "../../app/services/roleService";
+import {RoleController} from "./roleController";
 
 const API: string = "/api";
 
@@ -22,6 +25,7 @@ const userRepository = new UserRepositoryImpl();
 const roomRepository = new RoomRepositoryImpl();
 const hotelRepository = new HotelRepositoryImpl();
 const reservationRepository = new ReservationRepositoryImpl();
+const roleRepository = new RoleRepositoryImpl();
 
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);
@@ -34,6 +38,9 @@ const roomController = new RoomController(roomService);
 
 const hotelService = new HotelService(hotelRepository, roomRepository);
 const hotelController = new HotelController(hotelService);
+
+const roleService = new RoleService(roleRepository);
+const roleController = new RoleController(roleService);
 
 const reservationService = new ReservationService(
   reservationRepository,
@@ -48,4 +55,6 @@ export const routes = (server: any) => {
   server.use(`${API}/hotels`, hotelController.router);
   server.use(`${API}/rooms`, roomController.router);
   server.use(`${API}/reservations`, reservationController.router);
+  server.use('/${API}roles', roleController.router);
+
 };
