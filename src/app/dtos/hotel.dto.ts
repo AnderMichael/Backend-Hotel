@@ -1,5 +1,5 @@
 export interface HotelDto{
-    id: string;
+    id?: string;
     name: string;
     roomsTotal: number;
     roomsAvailable: number;
