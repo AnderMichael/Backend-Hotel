@@ -4,9 +4,14 @@ import { Hotel } from "../../domain/models/hotel";
 import { IHotelEntity } from "../../domain/entities/IHotelEntity";
 import logger from "../../infrastructure/logger/logger";
 import { CreateHotelDTO } from "../dtos/create.hotel.dto";
+import { RoomRepository } from "../../domain/interfaces/roomRepository";
+import { Room } from "../../domain/models/room";
 
 export class HotelService {
-  constructor(private hotelRepository: HotelRepository) {}
+  constructor(
+    private hotelRepository: HotelRepository,
+    private roomRepository: RoomRepository
+  ) {}
 
   async getHotelById(id: string): Promise<HotelDto | null> {
     try {
@@ -47,7 +52,9 @@ export class HotelService {
 
       const createdHotel = await this.hotelRepository.createHotel(newHotel);
 
-      logger.info(`Hotel created successfully in HotelService: ${createdHotel.id}`);
+      logger.info(
+        `Hotel created successfully in HotelService: ${createdHotel.id}`
+      );
       return createdHotel;
     } catch (error) {
       logger.error(`Error creating hotel in HotelService: ${error}`);
@@ -57,11 +64,24 @@ export class HotelService {
 
   async deleteHotel(hotelId: string): Promise<void> {
     try {
-      logger.debug(`HotelService: Attempting to delete hotel with ID: ${hotelId}`);
+      logger.debug(
+        `HotelService: Attempting to delete hotel with ID: ${hotelId}`
+      );
+      const hotel = await this.hotelRepository.findById(hotelId);
+      const rooms: Room[] = await this.roomRepository.findAllbyHotel(hotel);
+
+      rooms.forEach((room) => {
+        this.roomRepository.deleteRoom(room.id);
+      });
+
       await this.hotelRepository.deleteHotel(hotelId);
-      logger.info(`Hotel with ID: ${hotelId} deleted successfully in HotelService`);
+      logger.info(
+        `Hotel with ID: ${hotelId} deleted successfully in HotelService`
+      );
     } catch (error) {
-      logger.error(`Error deleting hotel with ID ${hotelId} in HotelService: ${error}`);
+      logger.error(
+        `Error deleting hotel with ID ${hotelId} in HotelService: ${error}`
+      );
       throw error;
     }
   }
@@ -71,12 +91,21 @@ export class HotelService {
     updateData: Partial<CreateHotelDTO>
   ): Promise<Hotel> {
     try {
-      logger.debug(`HotelService: Attempting to update hotel with ID: ${hotelId}`);
-      const updatedHotel = await this.hotelRepository.updateHotel(hotelId, updateData);
-      logger.info(`Hotel with ID: ${hotelId} updated successfully in HotelService`);
+      logger.debug(
+        `HotelService: Attempting to update hotel with ID: ${hotelId}`
+      );
+      const updatedHotel = await this.hotelRepository.updateHotel(
+        hotelId,
+        updateData
+      );
+      logger.info(
+        `Hotel with ID: ${hotelId} updated successfully in HotelService`
+      );
       return updatedHotel;
     } catch (error) {
-      logger.error(`Error updating hotel with ID ${hotelId} in HotelService: ${error}`);
+      logger.error(
+        `Error updating hotel with ID ${hotelId} in HotelService: ${error}`
+      );
       throw error;
     }
   }

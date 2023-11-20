@@ -13,6 +13,26 @@ export class RoomService {
     private hotelRepository: HotelRepository
   ) {}
 
+  async getRoomsByHotelID(hotelId: string): Promise<RoomDto[]> {
+    try {
+      const hotel: Hotel | null = await this.hotelRepository.findById(hotelId);
+
+      if (!hotel) {
+        logger.info(`Hotel with ID ${hotelId} not found in RoomService`);
+        return [];
+      }
+
+      const rooms: RoomDto[] = await this.roomRepository.findAllbyHotel(hotel);
+      logger.info(`Rooms retrieved for Hotel ID ${hotelId} in RoomService`);
+      return rooms;
+    } catch (error) {
+      logger.error(
+        `Error getting rooms for Hotel ID ${hotelId} in RoomService. Error: ${error}`
+      );
+      throw error; // You might want to handle or rethrow the error based on your application's error handling strategy.
+    }
+  }
+
   async getRoomById(id: string): Promise<RoomDto | null> {
     try {
       const room = await this.roomRepository.findById(id);
@@ -33,7 +53,9 @@ export class RoomService {
       logger.info("Room obtained successfully in RoomService");
       return roomResponse;
     } catch (error) {
-      logger.error(`Error getting room by ID ${id}. Error: ${error} in RoomService`);
+      logger.error(
+        `Error getting room by ID ${id}. Error: ${error} in RoomService`
+      );
       throw new Error("Internal Server Error");
     }
   }
@@ -61,7 +83,9 @@ export class RoomService {
       const newRoom = new Room(roomEntity);
 
       const createdRoom = await this.roomRepository.createRoom(newRoom);
-      logger.info(`Room created successfully: ${createdRoom.id} in RoomService`);
+      logger.info(
+        `Room created successfully: ${createdRoom.id} in RoomService`
+      );
       return createdRoom;
     } catch (error) {
       logger.error(`Error creating room. Error: ${error} in RoomService`);
@@ -71,28 +95,46 @@ export class RoomService {
 
   async deleteRoom(roomId: string): Promise<void> {
     try {
-      logger.debug(`Attempting to delete room with ID: ${roomId} in RoomService`);
+      logger.debug(
+        `Attempting to delete room with ID: ${roomId} in RoomService`
+      );
       const { hotel }: Room = await this.roomRepository.findById(roomId);
       hotel.roomsAvailable -= 1;
       hotel.roomsTotal -= 1;
       hotel.modifiedAt = new Date();
       await this.hotelRepository.updateHotel(hotel.id, hotel);
       await this.roomRepository.deleteRoom(roomId);
-      logger.info(`Room with ID: ${roomId} deleted successfully in RoomService`);
+      logger.info(
+        `Room with ID: ${roomId} deleted successfully in RoomService`
+      );
     } catch (error) {
-      logger.error(`Error deleting room with ID ${roomId}. Error: ${error} in RoomService`);
+      logger.error(
+        `Error deleting room with ID ${roomId}. Error: ${error} in RoomService`
+      );
       throw new Error("Internal Server Error");
     }
   }
 
-  async updateRoom(roomId: string, updateData: Partial<CreateRoomDTO>): Promise<Room> {
+  async updateRoom(
+    roomId: string,
+    updateData: Partial<CreateRoomDTO>
+  ): Promise<Room> {
     try {
-      logger.debug(`Attempting to update room with ID: ${roomId} in RoomService`);
-      const updatedRoom = await this.roomRepository.updateRoom(roomId, updateData);
-      logger.info(`Room with ID: ${roomId} updated successfully in RoomService`);
+      logger.debug(
+        `Attempting to update room with ID: ${roomId} in RoomService`
+      );
+      const updatedRoom = await this.roomRepository.updateRoom(
+        roomId,
+        updateData
+      );
+      logger.info(
+        `Room with ID: ${roomId} updated successfully in RoomService`
+      );
       return updatedRoom;
     } catch (error) {
-      logger.error(`Error updating room with ID ${roomId}. Error: ${error} in RoomService`);
+      logger.error(
+        `Error updating room with ID ${roomId}. Error: ${error} in RoomService`
+      );
       throw new Error("Internal Server Error");
     }
   }

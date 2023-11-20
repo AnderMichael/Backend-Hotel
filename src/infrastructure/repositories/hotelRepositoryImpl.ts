@@ -27,7 +27,8 @@ export class HotelRepositoryImpl implements HotelRepository {
       const hotelEntity = hotelRepository.create({
         id: hotel.id,
         name: hotel.name,
-        createdAt: hotel.createdAt || new Date(),
+        createdAt: hotel.createdAt,
+        modifiedAt: hotel.modifiedAt,
         location: hotel.location,
         roomsAvailable: hotel.roomsAvailable,
         roomsTotal: hotel.roomsTotal,

@@ -3,8 +3,26 @@ import { Room } from "../../domain/models/room";
 import { AppDataSource } from "../config/dataSource";
 import logger from "../logger/logger";
 import { RoomEntity } from "../entities/roomEntity";
+import { Hotel } from "../../domain/models/hotel";
 
 export class RoomRepositoryImpl implements RoomRepository {
+  async findAllbyHotel(hotel: Hotel): Promise<Room[]> {
+    try {
+      const roomRepository = AppDataSource.getRepository(RoomEntity);
+      const rooms = await roomRepository.find({ where: { hotel: hotel } });
+
+      logger.info(
+        `Rooms retrieved for Hotel ID ${hotel.id} in RoomRepositoryImpl`
+      );
+      return rooms.map((room) => new Room(room));
+    } catch (error) {
+      logger.error(
+        `Error finding rooms for Hotel ID ${hotel.id} in RoomRepositoryImpl. Error: ${error}`
+      );
+      throw error; // You might want to handle or rethrow the error based on your application's error handling strategy.
+    }
+  }
+
   async findById(id: string): Promise<Room | null> {
     try {
       logger.info(`Finding room by ID: ${id} in RoomRepositoryImpl`);
