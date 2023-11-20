@@ -18,45 +18,90 @@ export class UserController {
     try {
       const userDTO: CreateUserDTO = req.body;
       const user = await this.userService.createUser(userDTO);
+
+      logger.info(`User created successfully in UserController: ${user.id}`);
       return res.status(201).json(user);
     } catch (error) {
-      logger.error("The User could not be created due to the next error:");
+      logger.error("Error creating user in UserController:", error);
       return res.status(400).json({ message: error });
     }
   }
 
   public async getUserById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
-    const userDto = await this.userService.getUserById(id);
+    const { userId } = req.params;
 
-    if (!userDto) {
-      res.status(404).json({ message: "Role not found" });
-      return;
+    try {
+      const userDto = await this.userService.getUserById(userId);
+
+      if (!userDto) {
+        logger.info(`User with ID ${userId} not found in UserController`);
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      logger.debug(
+        `User retrieved by ID ${userId} in UserController:`,
+        userDto
+      );
+      res.status(200).json(userDto);
+    } catch (error) {
+      logger.error(
+        `Error getting user by ID ${userId} in UserController:`,
+        error
+      );
+      res.status(500).json({ message: "Internal Server Error" });
     }
-
-    res.status(200).json(userDto);
   }
 
   public async updateUserById(req: Request, res: Response): Promise<Response> {
-    const { id } = req.params;
+    const { userId } = req.params;
     const updatedData = req.body;
-    const userDto = await this.userService.updateUserById(id, updatedData);
 
-    if (!userDto) {
-      return res.status(404).json({ message: "Role not found" });
+    try {
+      const userDto = await this.userService.updateUserById(
+        userId,
+        updatedData
+      );
+
+      if (!userDto) {
+        logger.info(`User with ID ${userId} not found in UserController`);
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      logger.info(
+        `User with ID ${userId} updated successfully in UserController:`,
+        userDto
+      );
+      return res.status(200).json(userDto);
+    } catch (error) {
+      logger.error(
+        `Error updating user with ID ${userId} in UserController:`,
+        error
+      );
+      return res.status(500).json({ message: "Error updating user" });
     }
-
-    return res.status(200).json(userDto);
   }
 
   public async deleteUserById(req: Request, res: Response): Promise<void> {
-    const { id } = req.params;
-    await this.userService.deleteUserById(id);
-    res.status(204).json({ message: "User deleted succesfully!" });
+    const { userId } = req.params;
+
+    try {
+      await this.userService.deleteUserById(userId);
+      logger.info(
+        `User with ID ${userId} deleted successfully in UserController`
+      );
+      res.status(204).json({ message: "User deleted successfully!" });
+    } catch (error) {
+      logger.error(
+        `Error deleting user with ID ${userId} in UserController:`,
+        error
+      );
+      res.status(500).json({ message: "Error deleting user" });
+    }
   }
 
   public routes() {
-    this.router.post("/", verifyTokenMiddleware, this.createUser.bind(this));
+    this.router.post("/", this.createUser.bind(this));
     this.router.get("/:userId", this.getUserById.bind(this));
     this.router.put("/:userId", this.updateUserById.bind(this));
     this.router.delete("/:userId", this.deleteUserById.bind(this));

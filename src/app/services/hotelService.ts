@@ -1,54 +1,112 @@
-import {HotelRepository} from "../../domain/interfaces/hotelRepository";
-import {HotelDto} from "../dtos/hotel.dto";
-import {Hotel} from "../../domain/models/hotel";
-import {IHotelEntity} from "../../domain/entities/IHotelEntity";
+import { HotelRepository } from "../../domain/interfaces/hotelRepository";
+import { HotelDto } from "../dtos/hotel.dto";
+import { Hotel } from "../../domain/models/hotel";
+import { IHotelEntity } from "../../domain/entities/IHotelEntity";
 import logger from "../../infrastructure/logger/logger";
-import {CreateHotelDTO} from "../dtos/create.hotel.dto";
+import { CreateHotelDTO } from "../dtos/create.hotel.dto";
+import { RoomRepository } from "../../domain/interfaces/roomRepository";
+import { Room } from "../../domain/models/room";
 
-export class RoomService {
-    constructor(private hotelRepository: HotelRepository) { }
+export class HotelService {
+  constructor(
+    private hotelRepository: HotelRepository,
+    private roomRepository: RoomRepository
+  ) {}
 
-    async getHotelById(id: string): Promise<HotelDto | null> {
+  async getHotelById(id: string): Promise<HotelDto | null> {
+    try {
+      const hotel = await this.hotelRepository.findById(id);
 
-        const hotel = await this.hotelRepository.findById(id);
-        // log.debug user
+      if (!hotel) {
+        logger.info(`Hotel with ID ${id} not found in HotelService`);
+        return null;
+      }
 
-        if (!hotel) return null;
+      const hotelResponse: HotelDto = {
+        id: hotel.id,
+        name: hotel.name,
+        location: hotel.location,
+        roomsAvailable: hotel.roomsAvailable,
+        roomsTotal: hotel.roomsTotal,
+      };
 
-        const hotelResponse : HotelDto= {
-            id: hotel.id,
-            name: hotel.name,
-            location: hotel.location,
-            roomsAvailable: hotel.roomsAvailable,
-            roomsTotal: hotel.roomsTotal
-        }
-        // log.info user obtenido exitosamente
-        return hotelResponse;
+      logger.info(`Hotel with ID ${id} retrieved successfully in HotelService`);
+      return hotelResponse;
+    } catch (error) {
+      logger.error(`Error getting hotel by ID ${id} in HotelService: ${error}`);
+      throw error;
     }
+  }
 
-    async createHotel(hotelDto: CreateHotelDTO): Promise<Hotel> {
+  async createHotel(hotelDto: CreateHotelDTO): Promise<Hotel> {
+    try {
+      const hotelEntity: IHotelEntity = {
+        createdAt: new Date(),
+        modifiedAt: new Date(),
+        location: hotelDto.location,
+        name: hotelDto.name,
+        roomsAvailable: 0,
+        roomsTotal: 0,
+      };
+      const newHotel = new Hotel(hotelEntity);
 
-        const hotelEntity: IHotelEntity = {
-            createdAt: new Date(),
-            id: hotelDto.id,
-            location: hotelDto.location,
-            name: hotelDto.name,
-            roomsAvailable: hotelDto.roomsAvailable,
-            roomsTotal: hotelDto.roomsTotal
+      const createdHotel = await this.hotelRepository.createHotel(newHotel);
 
-        };
-        const newHotel = new Hotel(hotelEntity);
-
-        return this.hotelRepository.createHotel(newHotel);
+      logger.info(
+        `Hotel created successfully in HotelService: ${createdHotel.id}`
+      );
+      return createdHotel;
+    } catch (error) {
+      logger.error(`Error creating hotel in HotelService: ${error}`);
+      throw error;
     }
+  }
 
-    async deleteHotel(hotelId: string): Promise<void> {
-        logger.debug(`HotelService: Intentando eliminar al hotel con ID: ${hotelId}`);
-        await this.hotelRepository.deleteHotel(hotelId);
-    }
+  async deleteHotel(hotelId: string): Promise<void> {
+    try {
+      logger.debug(
+        `HotelService: Attempting to delete hotel with ID: ${hotelId}`
+      );
+      const hotel = await this.hotelRepository.findById(hotelId);
+      const rooms: Room[] = await this.roomRepository.findAllbyHotel(hotel);
 
-    async updateHotel(hotelId: string, updateData: Partial<CreateHotelDTO>): Promise<Hotel> {
-        logger.debug(`HotelService: Intentando actualizar al hotel con ID: ${hotelId}`);
-        return this.hotelRepository.updateHotel(hotelId, updateData);
+      rooms.forEach((room) => {
+        this.roomRepository.deleteRoom(room.id);
+      });
+
+      await this.hotelRepository.deleteHotel(hotelId);
+      logger.info(
+        `Hotel with ID: ${hotelId} deleted successfully in HotelService`
+      );
+    } catch (error) {
+      logger.error(
+        `Error deleting hotel with ID ${hotelId} in HotelService: ${error}`
+      );
+      throw error;
     }
+  }
+
+  async updateHotel(
+    hotelId: string,
+    updateData: Partial<CreateHotelDTO>
+  ): Promise<Hotel> {
+    try {
+      logger.debug(
+        `HotelService: Attempting to update hotel with ID: ${hotelId}`
+      );
+      const updatedHotel = await this.hotelRepository.updateHotel(
+        hotelId,
+        updateData
+      );
+      logger.info(
+        `Hotel with ID: ${hotelId} updated successfully in HotelService`
+      );
+      return updatedHotel;
+    } catch (error) {
+      logger.error(
+        `Error updating hotel with ID ${hotelId} in HotelService: ${error}`
+      );
+      throw error;
+    }
+  }
 }

@@ -17,12 +17,18 @@ export class AuthController {
         try {
             const loginDTO: LoginDTO = req.body;
             const loginResponse = await this.authService.login(loginDTO);
+
+            logger.info(`User ${loginDTO.email} logged in successfully in AuthController`);
+            logger.debug(`Login response for ${loginDTO.password} in AuthController:`, loginResponse);
+
             return res.status(200).json(loginResponse);
         } catch (error) {
-            logger.error('There is an error in the login process', error);
+            logger.error('Error in the login process in AuthController:', error);
+
             if (error instanceof Error) {
                 return res.status(400).json({ message: error.message });
             }
+
             return res.status(400).json({ message: error });
         }
     }

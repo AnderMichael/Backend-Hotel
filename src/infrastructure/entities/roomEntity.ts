@@ -1,30 +1,46 @@
-import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany} from "typeorm";
-import { IRoomEntity } from '../../domain/entities/IRoomEntity';
-import {HotelEntity} from "./hotelEntity";
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from "typeorm";
+import { IRoomEntity } from "../../domain/entities/IRoomEntity";
+import { HotelEntity } from "./hotelEntity";
+import { IHotelEntity } from "../../domain/entities/IHotelEntity";
+import { ReservationEntity } from "./reservationEntity";
+
 @Entity()
 export class RoomEntity implements IRoomEntity {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @Column({ type: 'number' })
-    number: number;
+  @Column({ type: "int" }) // Assuming number should be an integer
+  number: number;
 
-    @Column({ type: 'varchar'})
-    category: string;
-    @Column({ type: 'number' })
-    capacity!: number;
+  @Column({ type: "varchar" })
+  category: string;
 
-    @Column({ type: 'boolean' })
-    available: boolean;
+  @Column({ type: "int" }) // Assuming capacity should be an integer
+  capacity!: number;
 
-    @Column({ type: 'timestamp' })
-    createdAt!: Date;
-    @OneToMany(() => HotelEntity)
-    @JoinColumn({ name: 'hotelId' })
-    hotel: HotelEntity;
+  @Column({ type: "boolean", default: true })
+  available!: boolean;
 
-    @Column({ type: 'number' })
-    price: number;
+  @ManyToOne(() => HotelEntity)
+  @JoinColumn({ name: "hotelId" })
+  hotel!: HotelEntity;
 
+  @Column({ type: "decimal", precision: 10, scale: 2 }) // Adjust precision and scale based on your requirements
+  price!: number;
 
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
+  
+  @Column({ type: "timestamp" })
+  modifiedAt: Date;
+
+  @OneToMany(() => ReservationEntity, (reservation) => reservation.room)
+  reservations: ReservationEntity[];
 }
