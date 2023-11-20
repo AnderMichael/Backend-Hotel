@@ -39,10 +39,16 @@ export class UserController {
         return;
       }
 
-      logger.debug(`User retrieved by ID ${userId} in UserController:`, userDto);
+      logger.debug(
+        `User retrieved by ID ${userId} in UserController:`,
+        userDto
+      );
       res.status(200).json(userDto);
     } catch (error) {
-      logger.error(`Error getting user by ID ${userId} in UserController:`, error);
+      logger.error(
+        `Error getting user by ID ${userId} in UserController:`,
+        error
+      );
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
@@ -52,17 +58,26 @@ export class UserController {
     const updatedData = req.body;
 
     try {
-      const userDto = await this.userService.updateUserById(userId, updatedData);
+      const userDto = await this.userService.updateUserById(
+        userId,
+        updatedData
+      );
 
       if (!userDto) {
         logger.info(`User with ID ${userId} not found in UserController`);
         return res.status(404).json({ message: "User not found" });
       }
 
-      logger.info(`User with ID ${userId} updated successfully in UserController:`, userDto);
+      logger.info(
+        `User with ID ${userId} updated successfully in UserController:`,
+        userDto
+      );
       return res.status(200).json(userDto);
     } catch (error) {
-      logger.error(`Error updating user with ID ${userId} in UserController:`, error);
+      logger.error(
+        `Error updating user with ID ${userId} in UserController:`,
+        error
+      );
       return res.status(500).json({ message: "Error updating user" });
     }
   }
@@ -72,16 +87,21 @@ export class UserController {
 
     try {
       await this.userService.deleteUserById(userId);
-      logger.info(`User with ID ${userId} deleted successfully in UserController`);
+      logger.info(
+        `User with ID ${userId} deleted successfully in UserController`
+      );
       res.status(204).json({ message: "User deleted successfully!" });
     } catch (error) {
-      logger.error(`Error deleting user with ID ${userId} in UserController:`, error);
+      logger.error(
+        `Error deleting user with ID ${userId} in UserController:`,
+        error
+      );
       res.status(500).json({ message: "Error deleting user" });
     }
   }
 
   public routes() {
-    this.router.post("/", verifyTokenMiddleware, this.createUser.bind(this));
+    this.router.post("/", this.createUser.bind(this));
     this.router.get("/:userId", this.getUserById.bind(this));
     this.router.put("/:userId", this.updateUserById.bind(this));
     this.router.delete("/:userId", this.deleteUserById.bind(this));
