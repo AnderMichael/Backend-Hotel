@@ -1,23 +1,27 @@
-import {Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn} from "typeorm";
-import {IHotelEntity} from "../../domain/entities/IHotelEntity";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { IHotelEntity } from "../../domain/entities/IHotelEntity";
+
 @Entity()
 export class HotelEntity implements IHotelEntity {
-    @PrimaryGeneratedColumn("uuid")
-    id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id!: string;
 
-    @Column({ type: 'number' })
-    name!: string;
+  @Column({ type: "varchar" })
+  name!: string;
 
-    @Column({ type: 'number'})
-    roomsTotal!: number;
-    @Column({ type: 'number' })
-    roomsAvailable!: number;
+  @Column({ type: "int" }) // Assuming roomsTotal and roomsAvailable should be integers
+  roomsTotal!: number;
 
-    @Column({ type: 'string' })
-    location!: string;
+  @Column({ type: "int" })
+  roomsAvailable!: number;
 
-    @Column({ type: 'timestamp' })
-    createdAt!: Date;
+  @Column({ type: "varchar" })
+  location!: string;
 
+  @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+  createdAt!: Date;
+
+  @Column({ type: "timestamp"})
+  modifiedAt!: Date;
 
 }

@@ -20,10 +20,14 @@ export class AuthService {
         hashedPassword: loginDTO.password,
       };
 
-      const user: User = await this.userRepository.findByEmail(userEntity.email);
+      const user: User = await this.userRepository.findByEmail(
+        userEntity.email
+      );
 
       if (!user) {
-        logger.error(`User with email ${userEntity.email} does not exist`);
+        logger.error(
+          `User with email ${userEntity.email} does not exist in AuthService`
+        );
         throw new Error("Email or password is incorrect");
       }
 
@@ -33,7 +37,9 @@ export class AuthService {
       );
 
       if (!isPasswordValid) {
-        logger.error(`Incorrect password for user with email ${userEntity.email}`);
+        logger.error(
+          `Incorrect password for user with email ${userEntity.email} in AuthService`
+        );
         throw new Error("Email or password is incorrect");
       }
 
@@ -42,6 +48,11 @@ export class AuthService {
       user.lastLogin = new Date();
 
       const userUpdated = await this.userRepository.updateUser(user.id, user);
+
+      logger.info(
+        `User with email ${userEntity.email} logged in successfully in AuthService`
+      );
+      logger.debug(`User details after login in AuthService:`, userUpdated);
 
       return {
         id: userUpdated.id,
@@ -53,7 +64,7 @@ export class AuthService {
         token: user.token,
       };
     } catch (error) {
-      logger.error(`Error during login: ${error}`);
+      logger.error(`Error during login in AuthService: ${error}`);
       throw error;
     }
   }

@@ -1,77 +1,106 @@
-import { Request, Response, Router } from 'express';
-import {RoomService} from "../../app/services/hotelService";
-import {CreateHotelDTO} from "../../app/dtos/create.hotel.dto";
+import { Request, Response, Router } from "express";
+import { HotelService } from "../../app/services/hotelService";
+import { CreateHotelDTO } from "../../app/dtos/create.hotel.dto";
 import logger from "../../infrastructure/logger/logger";
 
 export class HotelController {
-    public router: Router;
-    private hotelService: RoomService;
+  public router: Router;
+  private hotelService: HotelService;
 
+  constructor(hotelService: HotelService) {
+    this.hotelService = hotelService;
+    this.router = Router();
+    this.routes();
+  }
 
-    constructor(hotelService: RoomService) {
-        this.hotelService = hotelService;
-        this.router = Router();
-        this.routes();
+  public async getHotelById(req: Request, res: Response): Promise<void> {
+    const { hotelId } = req.params;
+
+    try {
+      const hotelDto = await this.hotelService.getHotelById(hotelId);
+
+      if (!hotelDto) {
+        logger.info(`Hotel with ID ${hotelId} not found in HotelController`);
+        res.status(404).json({ message: "hotel not found" });
+        return;
+      }
+
+      logger.debug(
+        `Hotel retrieved by ID ${hotelId} in HotelController:`,
+        hotelDto
+      );
+      res.json(hotelDto);
+    } catch (error) {
+      logger.error(
+        `Error getting hotel by ID ${hotelId} in HotelController. Error: ${error}`
+      );
+      res.status(500).json({ message: "Internal Server Error" });
     }
+  }
 
-    public async getHotelById(req: Request, res: Response): Promise<void> {
-        const { id } = req.params;
-        const hotelDto = await this.hotelService.getHotelById(id);
+  public async createHotel(req: Request, res: Response): Promise<Response> {
+    try {
+      const hotelDto: CreateHotelDTO = req.body;
+      const hotel = await this.hotelService.createHotel(hotelDto);
 
-        if (!hotelDto) {
-            res.status(404).json({ message: 'hotel not found' });
-            return;
-        }
-
-        res.json(hotelDto);
+      logger.info(`Hotel created successfully in HotelController: ${hotel.id}`);
+      logger.debug(`Hotel details in HotelController:`, hotel);
+      return res.status(201).json(hotel);
+    } catch (error) {
+      logger.error(`Error creating hotel in HotelController. Error: ${error}`);
+      return res.status(400).json({ message: error });
     }
+  }
 
-    public async createHotel(req: Request, res: Response): Promise<Response> {
-        try {
-            const hotelDto: CreateHotelDTO = req.body;
-            const hotel = await this.hotelService.createHotel(hotelDto);
-            return res.status(201).json(hotel);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(error.message);
-                return res.status(400).json({ message: error.message });
-            }
-            return res.status(400).json({ message: error });
+  public async deleteHotel(req: Request, res: Response): Promise<Response> {
+    const { hotelId } = req.params;
 
-        }
+    try {
+      logger.debug(
+        `Attempting to delete hotel with ID: ${hotelId} in HotelController`
+      );
+      await this.hotelService.deleteHotel(hotelId);
+      logger.info(
+        `Hotel with ID: ${hotelId} deleted successfully in HotelController`
+      );
+      return res.status(200).json({ message: "Hotel deleted successfully" });
+    } catch (error) {
+      logger.error(
+        `Error deleting hotel with ID ${hotelId} in HotelController. Error: ${error}`
+      );
+      return res.status(500).json({ message: error });
     }
+  }
 
-    public async deleteHotel(req: Request, res: Response): Promise<Response> {
-        const { hotelId } = req.params;
-        try {
-            logger.debug(`Intentando eliminar al hotel con ID: ${hotelId}`);
-            await this.hotelService.deleteHotel(hotelId);
-            logger.info(`hotel con ID: ${hotelId} eliminado con éxito`);
-            return res.status(200).json({ message: 'hotel eliminado con éxito' });
-        } catch (error) {
-            logger.error(`Error al eliminar al hotel con ID: ${hotelId}. Error: ${error}`);
-            return res.status(500).json({ message: error });
-        }
+  public async updateHotel(req: Request, res: Response): Promise<Response> {
+    const { hotelId } = req.params;
+    const updateData = req.body;
+
+    try {
+      logger.debug(
+        `Attempting to update hotel with ID: ${hotelId} in HotelController`
+      );
+      const updatedHotel = await this.hotelService.updateHotel(
+        hotelId,
+        updateData
+      );
+      logger.info(
+        `Hotel with ID: ${hotelId} updated successfully in HotelController`
+      );
+      logger.debug(`Updated hotel details in HotelController:`, updatedHotel);
+      return res.status(200).json({ hotel: updatedHotel });
+    } catch (error) {
+      logger.error(
+        `Error updating hotel with ID ${hotelId} in HotelController. Error: ${error}`
+      );
+      return res.status(500).json({ message: "Error updating hotel" });
     }
+  }
 
-    public async updateHotel(req: Request, res: Response): Promise<Response> {
-        const { hotelId } = req.params;
-        const updateData = req.body;
-        try {
-            logger.debug(`Intentando actualizar al usuario con ID: ${hotelId}`);
-            const updatedHotel = await this.hotelService.updateHotel(hotelId, updateData);
-            logger.info(`Usuario con ID: ${hotelId} actualizado con éxito`);
-            return res.status(200).json({ hotel: updatedHotel });
-        } catch (error) {
-            logger.error(`Error al actualizar al usuario con ID: ${hotelId}. Error: ${error}`);
-            return res.status(500).json({ message: 'Error al actualizar el usuario' });
-        }
-    };
-
-    public routes() {
-        this.router.get('/:id', this.getHotelById.bind(this));
-        this.router.post('/', this.createHotel.bind(this));
-        this.router.delete('/:userId', this.deleteHotel.bind(this));
-        this.router.put('/:userId', this.updateHotel.bind(this));
-    }
+  public routes() {
+    this.router.get("/:hotelId", this.getHotelById.bind(this));
+    this.router.post("/", this.createHotel.bind(this));
+    this.router.delete("/:hotelId", this.deleteHotel.bind(this));
+    this.router.put("/:hotelId", this.updateHotel.bind(this));
+  }
 }

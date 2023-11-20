@@ -1,77 +1,103 @@
-import { Request, Response, Router } from 'express';
-import {RoomService} from "../../app/services/roomService";
+import { Request, Response, Router } from "express";
+import { RoomService } from "../../app/services/roomService";
 import logger from "../../infrastructure/logger/logger";
-import {CreateRoomDTO} from "../../app/dtos/create.room.dto";
+import { CreateRoomDTO } from "../../app/dtos/create.room.dto";
 
 export class RoomController {
-    public router: Router;
-    private roomService: RoomService;
+  public router: Router;
+  private roomService: RoomService;
 
+  constructor(roomService: RoomService) {
+    this.roomService = roomService;
+    this.router = Router();
+    this.routes();
+  }
 
-    constructor(roomService: RoomService) {
-        this.roomService = roomService;
-        this.router = Router();
-        this.routes();
+  public async getRoomById(req: Request, res: Response): Promise<void> {
+    const { roomId } = req.params;
+
+    try {
+      const roomDto = await this.roomService.getRoomById(roomId);
+
+      if (!roomDto) {
+        logger.info(`Room with ID ${roomId} not found in RoomController`);
+        res.status(404).json({ message: "room not found" });
+        return;
+      }
+
+      logger.debug(
+        `Room retrieved by ID ${roomId} in RoomController:`,
+        roomDto
+      );
+      res.json(roomDto);
+    } catch (error) {
+      logger.error(
+        `Error getting room by ID ${roomId} in RoomController. Error: ${error}`
+      );
+      res.status(500).json({ message: "Internal Server Error" });
     }
+  }
 
-    public async getRoomById(req: Request, res: Response): Promise<void> {
-        const { id } = req.params;
-        const roomDto = await this.roomService.getRoomById(id);
+  public async createRoom(req: Request, res: Response): Promise<Response> {
+    try {
+      const roomDto: CreateRoomDTO = req.body;
+      const room = await this.roomService.createRoom(roomDto);
 
-        if (!roomDto) {
-            res.status(404).json({ message: 'room not found' });
-            return;
-        }
-
-        res.json(roomDto);
+      logger.info(`Room created successfully in RoomController: ${room.id}`);
+      logger.debug(`Room details in RoomController:`, room);
+      return res.status(201).json(room);
+    } catch (error) {
+      logger.error(`Error creating room in RoomController. Error: ${error}`);
+      return res.status(400).json({ message: error });
     }
+  }
 
-    public async createRoom(req: Request, res: Response): Promise<Response> {
-        try {
-            const roomDto: CreateRoomDTO = req.body;
-            const room = await this.roomService.createRoom(roomDto);
-            return res.status(201).json(room);
-        } catch (error) {
-            if (error instanceof Error) {
-                console.log(error.message);
-                return res.status(400).json({ message: error.message });
-            }
-            return res.status(400).json({ message: error });
+  public async deleteRoom(req: Request, res: Response): Promise<Response> {
+    const { roomId } = req.params;
 
-        }
+    try {
+      logger.debug(
+        `Attempting to delete room with ID: ${roomId} in RoomController`
+      );
+      await this.roomService.deleteRoom(roomId);
+      logger.info(
+        `Room with ID: ${roomId} deleted successfully in RoomController`
+      );
+      return res.status(200).json({ message: "Room deleted successfully" });
+    } catch (error) {
+      logger.error(
+        `Error deleting room with ID ${roomId} in RoomController. Error: ${error}`
+      );
+      return res.status(500).json({ message: error });
     }
+  }
 
-    public async deleteRoom(req: Request, res: Response): Promise<Response> {
-        const { roomId } = req.params;
-        try {
-            logger.debug(`Intentando eliminar al cuarto con ID: ${roomId}`);
-            await this.roomService.deleteRoom(roomId);
-            logger.info(`cuarto con ID: ${roomId} eliminado con éxito`);
-            return res.status(200).json({ message: 'cuarto eliminado con éxito' });
-        } catch (error) {
-            logger.error(`Error al eliminar al cuarto con ID: ${roomId}. Error: ${error}`);
-            return res.status(500).json({ message: error });
-        }
+  public async updateRoom(req: Request, res: Response): Promise<Response> {
+    const { roomId } = req.params;
+    const updateData = req.body;
+
+    try {
+      logger.debug(
+        `Attempting to update room with ID: ${roomId} in RoomController`
+      );
+      const updatedRoom = await this.roomService.updateRoom(roomId, updateData);
+      logger.info(
+        `Room with ID: ${roomId} updated successfully in RoomController`
+      );
+      logger.debug(`Updated room details in RoomController:`, updatedRoom);
+      return res.status(200).json({ room: updatedRoom });
+    } catch (error) {
+      logger.error(
+        `Error updating room with ID ${roomId} in RoomController. Error: ${error}`
+      );
+      return res.status(500).json({ message: "Error updating room" });
     }
+  }
 
-    public async updateRoom(req: Request, res: Response): Promise<Response> {
-        const { roomId } = req.params;
-        const updateData = req.body;
-        try {
-            logger.debug(`Intentando actualizar al cuarto con ID: ${roomId}`);
-            const updatedRoom = await this.roomService.updateRoom(roomId, updateData);
-            logger.info(`cuarto con ID: ${roomId} actualizado con éxito`);
-            return res.status(200).json({ hotel: updatedRoom });
-        } catch (error) {
-            logger.error(`Error al actualizar al cuarto con ID: ${roomId}. Error: ${error}`);
-            return res.status(500).json({ message: 'Error al actualizar el cuarto' });
-        }
-    };
-
-    public routes() {
-        this.router.get('/:id', this.getRoomById.bind(this));
-        this.router.post('/', this.createRoom.bind(this));
-        this.router.delete('/:userId', this.deleteRoom.bind(this));
-        this.router.put('/:userId', this.updateRoom.bind(this));
-    }
+  public routes() {
+    this.router.get("/:roomId", this.getRoomById.bind(this));
+    this.router.post("/", this.createRoom.bind(this));
+    this.router.delete("/:roomId", this.deleteRoom.bind(this));
+    this.router.put("/:roomId", this.updateRoom.bind(this));
+  }
 }
