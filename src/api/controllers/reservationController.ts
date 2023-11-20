@@ -16,7 +16,7 @@ export class ReservationController {
     this.routes();
   }
 
-  public async getRemainingReservationsRoom(
+  public async getReservationsRoom(
     req: Request,
     res: Response
   ): Promise<void> {
@@ -24,8 +24,72 @@ export class ReservationController {
   
     try {
       const roomDto: Partial<RoomDto> =
-        await this.reservationService.getRemainingReservationsRoom(roomId);
+        await this.reservationService.getReservationsRoom(roomId);
   
+      if (!roomDto) {
+        logger.info(
+          `No reservations found for room with ID ${roomId} in ReservationController`
+        );
+        res.status(404).json({ message: "Reservation not found" });
+        return;
+      }
+  
+      logger.debug(
+        `Reservations retrieved for room with ID ${roomId} in ReservationController:`,
+        roomDto.reservations
+      );
+  
+      res.status(200).json(roomDto);
+    } catch (error) {
+      logger.error(
+        `Error getting reservations for room with ID ${roomId} in ReservationController:`,
+        error
+      );
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+  
+  public async getReservationsUser(req: Request, res: Response) {
+    const { userId } = req.params;
+  
+    try {
+      const roomDto: Partial<RoomDto> =
+        await this.reservationService.getReservationsUser(userId);
+  
+      if (!roomDto) {
+        logger.info(
+          `No reservations found for user with ID ${userId} in ReservationController`
+        );
+        res.status(404).json({ message: "Reservation not found" });
+        return;
+      }
+  
+      logger.debug(
+        `Reservations retrieved for user with ID ${userId} in ReservationController:`,
+        roomDto.reservations
+      );
+  
+      res.status(200).json(roomDto);
+    } catch (error) {
+      logger.error(
+        `Error getting reservations for user with ID ${userId} in ReservationController:`,
+        error
+      );
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+  
+
+  public async getRemainingReservationsRoom(
+    req: Request,
+    res: Response
+  ): Promise<void> {
+    const { roomId } = req.params;
+
+    try {
+      const roomDto: Partial<RoomDto> =
+        await this.reservationService.getRemainingReservationsRoom(roomId);
+
       if (!roomDto) {
         logger.info(
           `No remaining reservations found for room with ID ${roomId} in ReservationController`
@@ -33,12 +97,12 @@ export class ReservationController {
         res.status(404).json({ message: "Reservation not found" });
         return;
       }
-  
+
       logger.debug(
         `Remaining reservations retrieved for room with ID ${roomId} in ReservationController:`,
         roomDto.reservations
       );
-  
+
       res.status(200).json(roomDto);
     } catch (error) {
       logger.error(
@@ -48,7 +112,7 @@ export class ReservationController {
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
-  
+
   public async getRemainingReservationsUser(
     req: Request,
     res: Response
@@ -56,7 +120,8 @@ export class ReservationController {
     const { userId } = req.params; // Update the parameter name to userId
 
     try {
-      const userDto: Partial<UserDTO> = await this.reservationService.getRemainingReservationsUser(userId);
+      const userDto: Partial<UserDTO> =
+        await this.reservationService.getRemainingReservationsUser(userId);
 
       if (!userDto) {
         logger.info(
@@ -195,10 +260,18 @@ export class ReservationController {
     this.router.get("/:reservationId", this.getReservationById.bind(this));
     this.router.get(
       "/rooms/:roomId",
-      this.getRemainingReservationsRoom.bind(this)
+      this.getReservationsRoom.bind(this)
     );
     this.router.get(
       "/users/:userId",
+      this.getReservationsUser.bind(this)
+    );
+    this.router.get(
+      "/rooms/remain/:roomId",
+      this.getRemainingReservationsRoom.bind(this)
+    );
+    this.router.get(
+      "/users/remain/:userId",
       this.getRemainingReservationsUser.bind(this)
     );
     this.router.put("/:reservationId", this.updateReservationById.bind(this));

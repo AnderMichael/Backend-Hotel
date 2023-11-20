@@ -1,5 +1,7 @@
 import { ReservationRepository } from "../../domain/interfaces/reservationRepository";
 import { Reservation } from "../../domain/models/reservation";
+import { Room } from "../../domain/models/room";
+import { User } from "../../domain/models/user";
 import { AppDataSource } from "../config/dataSource";
 import { ReservationEntity } from "../entities/reservationEntity";
 import logger from "../logger/logger"; // Add this import
@@ -11,6 +13,44 @@ export class ReservationRepositoryImpl implements ReservationRepository {
       const reservationRepository =
         AppDataSource.getRepository(ReservationEntity);
       const reservations = await reservationRepository.find({
+        relations: ["room", "user"],
+      });
+      return reservations.map((reservation) => new Reservation(reservation));
+    } catch (error) {
+      logger.error(
+        "Error finding all reservations in ReservationRepositoryImpl:",
+        error
+      );
+      throw new Error("Internal Server Error");
+    }
+  }
+
+  async findByUser(user: User): Promise<Reservation[]> {
+    try {
+      logger.info("Finding all reservations in ReservationRepositoryImpl");
+      const reservationRepository =
+        AppDataSource.getRepository(ReservationEntity);
+      const reservations = await reservationRepository.find({
+        where: { user: { id: user.id } },
+        relations: ["room", "user"],
+      });
+      return reservations.map((reservation) => new Reservation(reservation));
+    } catch (error) {
+      logger.error(
+        "Error finding all reservations in ReservationRepositoryImpl:",
+        error
+      );
+      throw new Error("Internal Server Error");
+    }
+  }
+
+  async findByRoom(room: Room): Promise<Reservation[]> {
+    try {
+      logger.info("Finding all reservations in ReservationRepositoryImpl");
+      const reservationRepository =
+        AppDataSource.getRepository(ReservationEntity);
+      const reservations = await reservationRepository.find({
+        where: { room: { id: room.id } },
         relations: ["room", "user"],
       });
       return reservations.map((reservation) => new Reservation(reservation));

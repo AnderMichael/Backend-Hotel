@@ -19,29 +19,53 @@ export class ReservationService {
     private roomRepository: RoomRepository
   ) {}
 
+  async getReservationsRoom(roomId: string): Promise<Partial<RoomDto> | null> {
+    const room: Room = await this.roomRepository.findById(roomId);
+
+    const reservations: Reservation[] =
+      await this.reservationRepository.findByRoom(room);
+
+    const roomDto: Partial<RoomDto> = {
+      number: room.number,
+      capacity: room.capacity,
+      category: room.category,
+      price: room.price,
+      hotel: room.hotel,
+      reservations: reservations.map((reservation) =>
+        this.extractDataForRooms(reservation)
+      ),
+    };
+    return roomDto;
+  }
+
+  async getReservationsUser(userId: string): Promise<Partial<UserDTO> | null> {
+    const user: User = await this.userRepository.findById(userId);
+
+    const reservations: Reservation[] =
+      await this.reservationRepository.findByUser(user);
+
+    const userDto: Partial<UserDTO> = {
+      username: user.username,
+      email: user.email,
+      lastLogin: user.lastLogin,
+      reservations: reservations.map((reservation) =>
+        this.extractDataForUsers(reservation)
+      ),
+    };
+    return userDto;
+  }
+
   async getRemainingReservationsRoom(
     roomId: string
   ): Promise<Partial<RoomDto> | null> {
     try {
-      const reservations: Reservation[] =
-        await this.reservationRepository.findAll();
-
       const room: Room = await this.roomRepository.findById(roomId);
 
-      const remainingReservations = reservations
-        .filter(
-          (reservation) =>
-            reservation.room.id === roomId && reservation.status === REMAINING
-        )
-        .map((reservation) => {
-          return {
-            user: reservation.user,
-            reservationInit: reservation.reservationInit,
-            reservationEnd: reservation.reservationEnd,
-            payment: reservation.payment,
-            status: reservation.status,
-          };
-        });
+      const reservations: Reservation[] =
+        await this.reservationRepository.findByRoom(room);
+
+      const remainingReservations =
+        this.filterRemainingReservationsbyRoom(reservations);
 
       const roomDto: Partial<RoomDto> = {
         number: room.number,
@@ -74,26 +98,13 @@ export class ReservationService {
       logger.info(
         `Getting remaining reservations for user with ID ${userId} in ReservationService`
       );
-
-      const reservations: Reservation[] =
-        await this.reservationRepository.findAll();
-
       const user: User = await this.userRepository.findById(userId);
 
-      const remainingReservations = reservations
-        .filter(
-          (reservation) =>
-            reservation.user.id === userId && reservation.status === REMAINING
-        )
-        .map((reservation) => {
-          return {
-            room: reservation.room,
-            reservationInit: reservation.reservationInit,
-            reservationEnd: reservation.reservationEnd,
-            payment: reservation.payment,
-            status: reservation.status,
-          };
-        });
+      const reservations: Reservation[] =
+        await this.reservationRepository.findByUser(user);
+
+      const remainingReservations =
+        this.filterRemainingReservationsbyUser(reservations);
 
       const userDto: Partial<UserDTO> = {
         username: user.username,
@@ -115,6 +126,42 @@ export class ReservationService {
       );
       throw new Error("Internal Server Error");
     }
+  }
+
+  private filterRemainingReservationsbyUser(
+    reservations: Reservation[]
+  ): Partial<Reservation>[] {
+    return reservations
+      .filter((reservation) => reservation.status === REMAINING)
+      .map((reservation) => this.extractDataForUsers(reservation));
+  }
+
+  private extractDataForUsers(reservation: Reservation): Partial<Reservation> {
+    return {
+      user: reservation.user,
+      reservationInit: reservation.reservationInit,
+      reservationEnd: reservation.reservationEnd,
+      payment: reservation.payment,
+      status: reservation.status,
+    };
+  }
+
+  private filterRemainingReservationsbyRoom(
+    reservations: Reservation[]
+  ): Partial<Reservation>[] {
+    return reservations
+      .filter((reservation) => reservation.status === REMAINING)
+      .map((reservation) => this.extractDataForRooms(reservation));
+  }
+
+  private extractDataForRooms(reservation: Reservation): Partial<Reservation> {
+    return {
+      room: reservation.room,
+      reservationInit: reservation.reservationInit,
+      reservationEnd: reservation.reservationEnd,
+      payment: reservation.payment,
+      status: reservation.status,
+    };
   }
 
   async createReservation(
