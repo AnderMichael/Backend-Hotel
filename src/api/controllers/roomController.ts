@@ -3,7 +3,7 @@ import {RoomService} from "../../app/services/roomService";
 import logger from "../../infrastructure/logger/logger";
 import {CreateRoomDTO} from "../../app/dtos/create.room.dto";
 
-export class HotelController {
+export class RoomController {
     public router: Router;
     private roomService: RoomService;
 

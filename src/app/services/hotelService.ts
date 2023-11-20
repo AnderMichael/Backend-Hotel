@@ -5,7 +5,7 @@ import {IHotelEntity} from "../../domain/entities/IHotelEntity";
 import logger from "../../infrastructure/logger/logger";
 import {CreateHotelDTO} from "../dtos/create.hotel.dto";
 
-export class RoomService {
+export class HotelService {
     constructor(private hotelRepository: HotelRepository) { }
 
     async getHotelById(id: string): Promise<HotelDto | null> {

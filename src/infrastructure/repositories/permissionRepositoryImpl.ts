@@ -1,5 +1,4 @@
 import { DeleteResult } from "typeorm";
-import { UpdateRoleDto } from "../../app/dtos/update.role.dto";
 import { Role } from "../../domain/models/role";
 import logger from '../../infrastructure/logger/logger';
 import { AppDataSource } from "../config/dataSource";
