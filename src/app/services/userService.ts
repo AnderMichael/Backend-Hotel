@@ -4,15 +4,19 @@ import { User } from "../../domain/models/user";
 import { UserDTO } from "../dtos/user.dto";
 import { CreateUserDTO } from "../dtos/create.user.dto";
 import logger from "../../infrastructure/logger/logger";
-import {RoleRepository} from "../../domain/interfaces/roleRepository";
-import {RoleRepositoryImpl} from "../../infrastructure/repositories/roleRepository";
-import {Role} from "../../domain/models/role"; // Add this import
+import { RoleRepository } from "../../domain/interfaces/roleRepository";
+import { RoleRepositoryImpl } from "../../infrastructure/repositories/roleRepository";
+import { Role } from "../../domain/models/role"; // Add this import
+import { UpdateUserDTO } from "../dtos/update.user.dto";
 
 export class UserService {
-  constructor(private userRepository: UserRepository, private roleRepository: RoleRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private roleRepository: RoleRepository
+  ) {}
 
   async createUser(userDTO: CreateUserDTO): Promise<User> {
-    const role : Role = await this.roleRepository.findById(userDTO.role);
+    const role: Role = await this.roleRepository.findById(userDTO.role);
     if (!role) {
       throw new Error(`Rol no encontrado`);
     }
@@ -24,13 +28,15 @@ export class UserService {
         createdAt: new Date(),
         modifiedAt: new Date(),
         lastLogin: null,
-        role: role
+        role: { id: role.id, name: role.name, description: role.description },
       };
 
       const newUser = new User(userEntity);
       const createdUser = await this.userRepository.createUser(newUser);
 
-      logger.info(`User created successfully in UserService: ${createdUser.id}`);
+      logger.info(
+        `User created successfully in UserService: ${createdUser.id}`
+      );
       return createdUser;
     } catch (error) {
       logger.error("Error creating user in UserService:", error);
@@ -41,9 +47,6 @@ export class UserService {
   async getUserById(userId: string): Promise<UserDTO | null> {
     try {
       const user = await this.userRepository.findById(userId);
-      if (!user) {
-        return user;
-      }
 
       const userResponse: UserDTO = {
         username: user.username,
@@ -51,10 +54,12 @@ export class UserService {
         createdAt: user.createdAt,
         modifiedAt: user.modifiedAt,
         lastLogin: user.lastLogin,
-          role: user.role
+        role: user.role,
       };
 
-      logger.info(`User retrieved successfully in UserService: ${userResponse.username}`);
+      logger.info(
+        `User retrieved successfully in UserService: ${userResponse.username}`
+      );
       return userResponse;
     } catch (error) {
       logger.error(`Error getting user by ID ${userId} in UserService:`, error);
@@ -64,14 +69,11 @@ export class UserService {
 
   async updateUserById(
     id: string,
-    updatedData: Partial<UserDTO>
+    updatedData: Partial<UpdateUserDTO>
   ): Promise<UserDTO | null> {
     try {
       logger.debug(`Attempting to update user with ID: ${id} in UserService`);
       const user = await this.userRepository.updateUser(id, updatedData);
-      if (!user) {
-        return user;
-      }
 
       const userResponse: UserDTO = {
         username: user.username,

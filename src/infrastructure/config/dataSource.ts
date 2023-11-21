@@ -8,7 +8,7 @@ import { ReservationEntity } from "../entities/reservationEntity";
 import { RoleEntity } from "../entities/roleEntity";
 
 export const AppDataSource = new DataSource({
-  type: db.type as "mysql" | "mariadb",
+  type: db.type as "mysql" | "mariadb" | "postgres",
   host: db.host,
   port: db.port as number,
   username: db.username,
@@ -22,7 +22,6 @@ export const AppDataSource = new DataSource({
     UserEntity,
     RoomEntity,
     ReservationEntity,
-
   ], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],
