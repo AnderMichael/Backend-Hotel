@@ -3,6 +3,7 @@ import { RoomService } from "../../app/services/roomService";
 import logger from "../../infrastructure/logger/logger";
 import { CreateRoomDTO } from "../../app/dtos/create.room.dto";
 import {verifyRoleMiddleware} from "../middleware/verifyRole";
+import {verifyTokenMiddleware} from "../middleware/verifyToken";
 
 export class RoomController {
   public router: Router;
@@ -96,9 +97,9 @@ export class RoomController {
   }
 
   public routes() {
-    this.router.get("/:roomId", this.getRoomById.bind(this));
-    this.router.post("/", verifyRoleMiddleware('admin'), this.createRoom.bind(this));
-    this.router.delete("/:roomId", verifyRoleMiddleware('admin'), this.deleteRoom.bind(this));
-    this.router.put("/:roomId", verifyRoleMiddleware('admin'), this.updateRoom.bind(this));
+    this.router.get("/:roomId", verifyTokenMiddleware, this.getRoomById.bind(this));
+    this.router.post("/", verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.createRoom.bind(this));
+    this.router.delete("/:roomId", verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.deleteRoom.bind(this));
+    this.router.put("/:roomId", verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.updateRoom.bind(this));
   }
 }

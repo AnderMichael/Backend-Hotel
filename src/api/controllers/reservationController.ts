@@ -259,27 +259,27 @@ export class ReservationController {
   }
 
   public routes() {
-    this.router.post("/", reservationValidationRules(), validate, this.createReservation.bind(this));
-    this.router.get("/:reservationId", this.getReservationById.bind(this));
+    this.router.post("/", verifyTokenMiddleware, reservationValidationRules(), validate, this.createReservation.bind(this));
+    this.router.get("/:reservationId", verifyTokenMiddleware, this.getReservationById.bind(this));
     this.router.get(
       "/rooms/:roomId",
       this.getReservationsRoom.bind(this)
     );
     this.router.get(
-      "/users/:userId",
+      "/users/:userId", verifyTokenMiddleware,
       this.getReservationsUser.bind(this)
     );
     this.router.get(
-      "/rooms/remain/:roomId",
+      "/rooms/remain/:roomId", verifyTokenMiddleware,verifyRoleMiddleware('admin'),
       this.getRemainingReservationsRoom.bind(this)
     );
     this.router.get(
-      "/users/remain/:userId",
+      "/users/remain/:userId", verifyTokenMiddleware,
       this.getRemainingReservationsUser.bind(this)
     );
-    this.router.put("/:reservationId", verifyRoleMiddleware('admin'), this.updateReservationById.bind(this));
+    this.router.put("/:reservationId", verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.updateReservationById.bind(this));
     this.router.delete(
-      "/:reservationId", verifyRoleMiddleware('admin'),
+      "/:reservationId", verifyTokenMiddleware, verifyRoleMiddleware('admin'),
       this.deleteReservationById.bind(this)
     );
   }
