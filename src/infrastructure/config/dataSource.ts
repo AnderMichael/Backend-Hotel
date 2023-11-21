@@ -22,7 +22,6 @@ export const AppDataSource = new DataSource({
     UserEntity,
     RoomEntity,
     ReservationEntity,
-
   ], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],
