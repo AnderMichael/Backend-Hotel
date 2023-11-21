@@ -103,8 +103,8 @@ export class UserController {
 
   public routes() {
     this.router.post("/", userValidationRules(), validate, this.createUser.bind(this));
-    this.router.get("/:userId", this.getUserById.bind(this));
-    this.router.put("/:userId", this.updateUserById.bind(this));
-    this.router.delete("/:userId", verifyRoleMiddleware('admin'), this.deleteUserById.bind(this));
+    this.router.get("/:userId", verifyTokenMiddleware,this.getUserById.bind(this));
+    this.router.put("/:userId", verifyTokenMiddleware ,this.updateUserById.bind(this));
+    this.router.delete("/:userId", verifyTokenMiddleware,verifyRoleMiddleware('admin'), this.deleteUserById.bind(this));
   }
 }

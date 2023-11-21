@@ -8,7 +8,7 @@ import { User } from "../../domain/models/user";
 import { UserRepository } from "../../domain/interfaces/userRepository";
 import { Room } from "../../domain/models/room";
 import { RoomRepository } from "../../domain/interfaces/roomRepository";
-import { REMAINING } from "../utils/constants";
+import { PENDING } from "../utils/constants";
 import { RoomDto } from "../dtos/room.dto";
 import { UserDTO } from "../dtos/user.dto";
 
@@ -132,7 +132,7 @@ export class ReservationService {
     reservations: Reservation[]
   ): Partial<Reservation>[] {
     return reservations
-      .filter((reservation) => reservation.status === REMAINING)
+      .filter((reservation) => reservation.status === PENDING)
       .map((reservation) => this.extractDataForUsers(reservation));
   }
 
@@ -150,7 +150,7 @@ export class ReservationService {
     reservations: Reservation[]
   ): Partial<Reservation>[] {
     return reservations
-      .filter((reservation) => reservation.status === REMAINING)
+      .filter((reservation) => reservation.status === PENDING)
       .map((reservation) => this.extractDataForRooms(reservation));
   }
 
@@ -179,7 +179,7 @@ export class ReservationService {
       const reservationEntity: Partial<IReservationEntity> = {
         user: user,
         room: room,
-        status: REMAINING,
+        status: PENDING,
         reservationInit: reservationDTO.reservationInit,
         reservationEnd: reservationDTO.reservationEnd,
         payment: reservationDTO.payment,

@@ -23,7 +23,7 @@ export class ReservationEntity implements IReservationEntity {
   room: RoomEntity;
 
   @Column({ type: "varchar" })
-  status!: "Aproved" | "Denied" | "Remaining";
+  status!: "Aproved" | "Denied" | "Pending";
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   reservationInit!: Date;

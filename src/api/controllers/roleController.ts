@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { RoleService } from '../../app/services/roleService';
 import { CreateRoleDTO } from '../../app/dtos/create.role.dto';
 import {verifyRoleMiddleware} from "../middleware/verifyRole";
+import {verifyTokenMiddleware} from "../middleware/verifyToken";
 
 export class RoleController {
     public router: Router;
@@ -38,7 +39,7 @@ export class RoleController {
 
 
     public routes() {
-        this.router.get('/:id', verifyRoleMiddleware('admin'), this.getRoleById.bind(this));
-        this.router.post('/', verifyRoleMiddleware('admin'), this.createRole.bind(this));
+        this.router.get('/:id', verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.getRoleById.bind(this));
+        this.router.post('/', verifyTokenMiddleware, verifyRoleMiddleware('admin'), this.createRole.bind(this));
     }
 }

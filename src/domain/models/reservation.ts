@@ -7,7 +7,7 @@ export class Reservation {
   id: string;
   user: IUserEntity;
   room: IRoomEntity;
-  status: "Aproved" | "Denied" | "Remaining";
+  status: "Aproved" | "Denied" | "Pending";
   payment: number;
   reservationInit: Date;
   reservationEnd: Date;
