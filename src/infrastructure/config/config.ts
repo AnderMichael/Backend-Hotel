@@ -7,12 +7,12 @@ export const env = {
 };
 
 export const db = {
-  port: process.env.BD_PORT || 3306,
-  type: process.env.BD_TYPE || "mysql",
-  username: process.env.BD_USER || "root",
-  password: process.env.BD_PASS || "root",
-  host: process.env.BD_HOST || "localhost",
-  database: process.env.BD_NAME || "app",
+  port: process.env.DB_PORT || 3306,
+  type: process.env.DB_TYPE || "mysql",
+  username: process.env.DB_USER || "root",
+  password: process.env.DB_PASS || "root",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.DB_NAME || "app",
 };
 
 export const lg = {

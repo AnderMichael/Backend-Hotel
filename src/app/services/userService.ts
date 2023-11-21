@@ -3,12 +3,19 @@ import { UserRepository } from "../../domain/interfaces/userRepository";
 import { User } from "../../domain/models/user";
 import { UserDTO } from "../dtos/user.dto";
 import { CreateUserDTO } from "../dtos/create.user.dto";
-import logger from "../../infrastructure/logger/logger"; // Add this import
+import logger from "../../infrastructure/logger/logger";
+import {RoleRepository} from "../../domain/interfaces/roleRepository";
+import {RoleRepositoryImpl} from "../../infrastructure/repositories/roleRepository";
+import {Role} from "../../domain/models/role"; // Add this import
 
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private userRepository: UserRepository, private roleRepository: RoleRepository) {}
 
   async createUser(userDTO: CreateUserDTO): Promise<User> {
+    const role : Role = await this.roleRepository.findById(userDTO.role);
+    if (!role) {
+      throw new Error(`Rol no encontrado`);
+    }
     try {
       const userEntity: Partial<IUserEntity> = {
         username: userDTO.username,
@@ -17,7 +24,9 @@ export class UserService {
         createdAt: new Date(),
         modifiedAt: new Date(),
         lastLogin: null,
+        role: role
       };
+
       const newUser = new User(userEntity);
       const createdUser = await this.userRepository.createUser(newUser);
 
@@ -42,6 +51,7 @@ export class UserService {
         createdAt: user.createdAt,
         modifiedAt: user.modifiedAt,
         lastLogin: user.lastLogin,
+          role: user.role
       };
 
       logger.info(`User retrieved successfully in UserService: ${userResponse.username}`);

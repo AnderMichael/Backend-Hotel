@@ -1,4 +1,5 @@
 import { IReservationEntity } from "./IReservationEntity";
+import {IRoleEntity} from "./IRoleEntity";
 
 export interface IUserEntity {
   id?: string;
@@ -9,4 +10,5 @@ export interface IUserEntity {
   modifiedAt: Date;
   lastLogin: Date | null;
   reservations?: IReservationEntity[];
+  role?: IRoleEntity;
 }

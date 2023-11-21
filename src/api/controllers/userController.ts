@@ -3,6 +3,7 @@ import { CreateUserDTO } from "../../app/dtos/create.user.dto";
 import logger from "../../infrastructure/logger/logger";
 import { UserService } from "../../app/services/userService";
 import { verifyTokenMiddleware } from "../middleware/verifyToken";
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
 
 export class UserController {
   public router: Router;
@@ -18,7 +19,6 @@ export class UserController {
     try {
       const userDTO: CreateUserDTO = req.body;
       const user = await this.userService.createUser(userDTO);
-
       logger.info(`User created successfully in UserController: ${user.id}`);
       return res.status(201).json(user);
     } catch (error) {
@@ -104,6 +104,6 @@ export class UserController {
     this.router.post("/", this.createUser.bind(this));
     this.router.get("/:userId", this.getUserById.bind(this));
     this.router.put("/:userId", this.updateUserById.bind(this));
-    this.router.delete("/:userId", this.deleteUserById.bind(this));
+    this.router.delete("/:userId", verifyRoleMiddleware('admin'), this.deleteUserById.bind(this));
   }
 }

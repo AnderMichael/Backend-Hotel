@@ -22,7 +22,7 @@ export class UserRepositoryImpl implements UserRepository {
     try {
       logger.info(`Finding user by ID: ${id} in UserRepositoryImpl`);
       const userRepository = AppDataSource.getRepository(UserEntity);
-      const user = await userRepository.findOne({ where: { id } });
+      const user = await userRepository.findOne({ where: { id },relations: ["role"],  });
       return user ? new User(user) : null;
     } catch (error) {
       logger.error(`Error finding user by ID ${id} in UserRepositoryImpl:`, error);
@@ -56,6 +56,7 @@ export class UserRepositoryImpl implements UserRepository {
         createdAt: user.createdAt,
         modifiedAt: user.modifiedAt,
         lastLogin: user.lastLogin,
+        role: user.role
       });
 
       const userResponse = await userRepository.save(userEntity);
@@ -65,6 +66,7 @@ export class UserRepositoryImpl implements UserRepository {
         username: userResponse.username,
         email: userResponse.email,
         hashedPassword: userResponse.hashedPassword,
+        role: userResponse.role,
         createdAt: userResponse.createdAt,
         modifiedAt: userResponse.createdAt,
         lastLogin: userResponse.lastLogin,
@@ -98,7 +100,7 @@ export class UserRepositoryImpl implements UserRepository {
     try {
       logger.debug(`Attempting to update user with ID: ${userId} in UserRepositoryImpl`);
       const repository = AppDataSource.getRepository(UserEntity);
-      const user = await repository.findOne({ where: { id: userId } });
+      const user = await repository.findOne({ where: { id: userId }, relations: ["role"], });
 
       if (!user) {
         logger.error(`Error updating user with ID ${userId} in UserRepositoryImpl: User not found`);
@@ -115,4 +117,5 @@ export class UserRepositoryImpl implements UserRepository {
       throw new Error('Internal Server Error');
     }
   }
+
 }

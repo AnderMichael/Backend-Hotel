@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
 import { IUserEntity } from "../entities/IUserEntity";
 import { token } from "morgan";
+import {RoleEntity} from "../../infrastructure/entities/roleEntity";
+import {IRoleEntity} from "../entities/IRoleEntity";
 
 export class User {
   id: string;
@@ -11,6 +13,7 @@ export class User {
   createdAt: Date;
   modifiedAt: Date;
   token?: string | null;
+  role?: IRoleEntity;
 
   constructor(userEntity: Partial<IUserEntity>) {
     this.id = userEntity.id || uuidv4();
@@ -20,5 +23,6 @@ export class User {
     this.lastLogin = userEntity.lastLogin;
     this.createdAt = userEntity.createdAt;
     this.modifiedAt = userEntity.modifiedAt;
+    this.role = userEntity.role;
   }
 }
