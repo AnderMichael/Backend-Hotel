@@ -7,4 +7,6 @@ export interface RoomRepository {
     createRoom(room: Room): Promise<Room>;
     deleteRoom(id: string): Promise<void>;
     updateRoom(userId: string, updateData: Partial<Room>): Promise<Room>;
+
+    getPriceById(id: string): Promise<number>;
 }

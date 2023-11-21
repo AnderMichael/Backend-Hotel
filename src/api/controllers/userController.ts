@@ -4,6 +4,7 @@ import logger from "../../infrastructure/logger/logger";
 import { UserService } from "../../app/services/userService";
 import { verifyTokenMiddleware } from "../middleware/verifyToken";
 import {verifyRoleMiddleware} from "../middleware/verifyRole";
+import {userValidationRules, validate} from "../middleware/userValidator";
 
 export class UserController {
   public router: Router;
@@ -101,7 +102,7 @@ export class UserController {
   }
 
   public routes() {
-    this.router.post("/", this.createUser.bind(this));
+    this.router.post("/", userValidationRules(), validate, this.createUser.bind(this));
     this.router.get("/:userId", this.getUserById.bind(this));
     this.router.put("/:userId", this.updateUserById.bind(this));
     this.router.delete("/:userId", verifyRoleMiddleware('admin'), this.deleteUserById.bind(this));
