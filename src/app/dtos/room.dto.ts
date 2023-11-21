@@ -9,5 +9,5 @@ export interface RoomDto {
   capacity: number;
   price: number;
   hotel: Partial<HotelDto>;
-  reservations: Partial<ReservationDTO>[];
+  reservations?: Partial<ReservationDTO>[];
 }

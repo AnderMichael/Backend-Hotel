@@ -8,5 +8,5 @@ export interface UserDTO {
   modifiedAt: Date;
   lastLogin: Date | null;
   token?: string;
-  reservations: Partial<ReservationDTO>[];
+  reservations?: Partial<ReservationDTO>[];
 }

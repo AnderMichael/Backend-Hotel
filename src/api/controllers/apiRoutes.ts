@@ -16,10 +16,13 @@ import { UserController } from "./userController";
 import {RoleRepositoryImpl} from "../../infrastructure/repositories/roleRepository";
 import {RoleService} from "../../app/services/roleService";
 import {RoleController} from "./roleController";
+import { RedisCacheService } from "../../infrastructure/config/cache/redis.cache";
 
 const API: string = "/api";
 
 const encrypt = new TokenGeneratorImpl();
+const cacheService = new RedisCacheService();
+
 
 const userRepository = new UserRepositoryImpl();
 const roomRepository = new RoomRepositoryImpl();
@@ -36,7 +39,7 @@ const authController = new AuthController(authService);
 const roomService = new RoomService(roomRepository, hotelRepository);
 const roomController = new RoomController(roomService);
 
-const hotelService = new HotelService(hotelRepository, roomRepository);
+const hotelService = new HotelService(hotelRepository, roomRepository, cacheService);
 const hotelController = new HotelController(hotelService);
 
 const roleService = new RoleService(roleRepository);

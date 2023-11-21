@@ -6,16 +6,52 @@ import logger from "../../infrastructure/logger/logger";
 import { CreateHotelDTO } from "../dtos/create.hotel.dto";
 import { RoomRepository } from "../../domain/interfaces/roomRepository";
 import { Room } from "../../domain/models/room";
+import { ICacheService } from "../../domain/cache/ICacheService";
+import { keyHotelPublic } from "../utils/constants";
 
 export class HotelService {
   constructor(
     private hotelRepository: HotelRepository,
-    private roomRepository: RoomRepository
+    private roomRepository: RoomRepository,
+    private cacheService: ICacheService
   ) {}
+
+  private async setHotelInCache(hotel: Hotel): Promise<void> {
+    await this.cacheService.set(
+      `${keyHotelPublic}-${hotel.id}`,
+      JSON.stringify(hotel)
+    );
+    logger.info(`Hotel with ID ${hotel.id} added to Cache in HotelService`);
+  }
+
+  private async getHotelFromCache(hotelId: string): Promise<Hotel> {
+    const hotelSaved = await this.cacheService.get(
+      `${keyHotelPublic}-${hotelId}`
+    );
+
+    if (hotelSaved) {
+      logger.info(
+        `Hotel with ID ${hotelId} retrieved from Cache in HotelService`
+      );
+      return JSON.parse(hotelSaved);
+    }
+
+    logger.info(
+      `Hotel with ID ${hotelId} not found in Cache in HotelService. Fetching from the database.`
+    );
+
+    const hotelDB = await this.hotelRepository.findById(hotelId);
+
+    if (hotelDB) {
+      await this.setHotelInCache(hotelDB);
+    }
+
+    return hotelDB;
+  }
 
   async getHotelById(id: string): Promise<HotelDto | null> {
     try {
-      const hotel = await this.hotelRepository.findById(id);
+      const hotel = await this.getHotelFromCache(id);
 
       if (!hotel) {
         logger.info(`Hotel with ID ${id} not found in HotelService`);
@@ -52,6 +88,8 @@ export class HotelService {
 
       const createdHotel = await this.hotelRepository.createHotel(newHotel);
 
+      this.setHotelInCache(createdHotel);
+
       logger.info(
         `Hotel created successfully in HotelService: ${createdHotel.id}`
       );
@@ -67,7 +105,7 @@ export class HotelService {
       logger.debug(
         `HotelService: Attempting to delete hotel with ID: ${hotelId}`
       );
-      const hotel = await this.hotelRepository.findById(hotelId);
+      const hotel = await this.getHotelFromCache(hotelId);
       const rooms: Room[] = await this.roomRepository.findAllbyHotel(hotel);
 
       rooms.forEach((room) => {
@@ -75,6 +113,7 @@ export class HotelService {
       });
 
       await this.hotelRepository.deleteHotel(hotelId);
+      await this.cacheService.delete(hotelId);
       logger.info(
         `Hotel with ID: ${hotelId} deleted successfully in HotelService`
       );
@@ -98,6 +137,7 @@ export class HotelService {
         hotelId,
         updateData
       );
+      this.setHotelInCache(updatedHotel);
       logger.info(
         `Hotel with ID: ${hotelId} updated successfully in HotelService`
       );
