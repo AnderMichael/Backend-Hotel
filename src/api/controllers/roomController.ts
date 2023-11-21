@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { RoomService } from "../../app/services/roomService";
 import logger from "../../infrastructure/logger/logger";
 import { CreateRoomDTO } from "../../app/dtos/create.room.dto";
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
 
 export class RoomController {
   public router: Router;
@@ -96,8 +97,8 @@ export class RoomController {
 
   public routes() {
     this.router.get("/:roomId", this.getRoomById.bind(this));
-    this.router.post("/", this.createRoom.bind(this));
-    this.router.delete("/:roomId", this.deleteRoom.bind(this));
-    this.router.put("/:roomId", this.updateRoom.bind(this));
+    this.router.post("/", verifyRoleMiddleware('admin'), this.createRoom.bind(this));
+    this.router.delete("/:roomId", verifyRoleMiddleware('admin'), this.deleteRoom.bind(this));
+    this.router.put("/:roomId", verifyRoleMiddleware('admin'), this.updateRoom.bind(this));
   }
 }

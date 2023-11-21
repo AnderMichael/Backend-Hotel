@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { RoleService } from '../../app/services/roleService';
 import { CreateRoleDTO } from '../../app/dtos/create.role.dto';
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
 
 export class RoleController {
     public router: Router;
@@ -37,7 +38,7 @@ export class RoleController {
 
 
     public routes() {
-        this.router.get('/:id', this.getRoleById.bind(this));
-        this.router.post('/', this.createRole.bind(this));
+        this.router.get('/:id', verifyRoleMiddleware('admin'), this.getRoleById.bind(this));
+        this.router.post('/', verifyRoleMiddleware('admin'), this.createRole.bind(this));
     }
 }

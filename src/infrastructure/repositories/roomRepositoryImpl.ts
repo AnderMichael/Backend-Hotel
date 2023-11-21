@@ -134,4 +134,22 @@ export class RoomRepositoryImpl implements RoomRepository {
       throw new Error("Internal Server Error");
     }
   }
+
+  async getPriceById(id: string): Promise<number> {
+    try {
+      logger.info(`Finding room price by ID: ${id} in RoomRepositoryImpl`);
+      const roomRepository = AppDataSource.getRepository(RoomEntity);
+      const room = await roomRepository.findOne({
+        where: {id},
+        relations: ["hotel"],
+      });
+      return room.price
+    } catch (error) {
+      logger.error(
+          `Error finding room price by ID ${id} in RoomRepositoryImpl:`,
+          error
+      );
+      throw new Error("Internal Server Error");
+    }
+  }
 }

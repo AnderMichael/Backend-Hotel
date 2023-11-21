@@ -1,4 +1,5 @@
 import { ReservationDTO } from "./reservation.dto";
+import {RoleDto} from "./role.dto";
 
 export interface UserDTO {
   id?: string;
@@ -8,5 +9,6 @@ export interface UserDTO {
   modifiedAt: Date;
   lastLogin: Date | null;
   token?: string;
-  reservations?: Partial<ReservationDTO>[];
+  reservations: Partial<ReservationDTO>[];
+  role: Partial<RoleDto>;
 }

@@ -5,6 +5,9 @@ import { ReservationService } from "../../app/services/reservationService";
 import { verifyTokenMiddleware } from "../middleware/verifyToken";
 import { RoomDto } from "../../app/dtos/room.dto";
 import { UserDTO } from "../../app/dtos/user.dto";
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
+import {userValidationRules, validate} from "../middleware/userValidator";
+import {reservationValidationRules} from "../middleware/reservationValidator";
 
 export class ReservationController {
   public router: Router;
@@ -256,7 +259,7 @@ export class ReservationController {
   }
 
   public routes() {
-    this.router.post("/", this.createReservation.bind(this));
+    this.router.post("/", reservationValidationRules(), validate, this.createReservation.bind(this));
     this.router.get("/:reservationId", this.getReservationById.bind(this));
     this.router.get(
       "/rooms/:roomId",
@@ -274,9 +277,9 @@ export class ReservationController {
       "/users/remain/:userId",
       this.getRemainingReservationsUser.bind(this)
     );
-    this.router.put("/:reservationId", this.updateReservationById.bind(this));
+    this.router.put("/:reservationId", verifyRoleMiddleware('admin'), this.updateReservationById.bind(this));
     this.router.delete(
-      "/:reservationId",
+      "/:reservationId", verifyRoleMiddleware('admin'),
       this.deleteReservationById.bind(this)
     );
   }

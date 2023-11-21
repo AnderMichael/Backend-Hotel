@@ -18,10 +18,11 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: [
     HotelEntity,
+    RoleEntity,
     UserEntity,
     RoomEntity,
     ReservationEntity,
-    RoleEntity,
+
   ], // ! Agregar entities una vez creadas
   subscribers: [],
   migrations: [],

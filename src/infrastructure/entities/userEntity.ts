@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from "typeorm";
 import { IUserEntity } from "../../domain/entities/IUserEntity";
 import { ReservationEntity } from "./reservationEntity";
+import {RoleEntity} from "./roleEntity";
 
 @Entity()
 export class UserEntity implements IUserEntity {
@@ -27,4 +28,6 @@ export class UserEntity implements IUserEntity {
 
   @OneToMany(() => ReservationEntity, (reservation) => reservation.room)
   reservations: ReservationEntity[];
+  @ManyToOne(()=> RoleEntity,(role)=>role.id)
+  role: RoleEntity;
 }

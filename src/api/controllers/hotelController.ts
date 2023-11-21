@@ -2,6 +2,7 @@ import { Request, Response, Router } from "express";
 import { HotelService } from "../../app/services/hotelService";
 import { CreateHotelDTO } from "../../app/dtos/create.hotel.dto";
 import logger from "../../infrastructure/logger/logger";
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
 
 export class HotelController {
   public router: Router;
@@ -98,9 +99,9 @@ export class HotelController {
   }
 
   public routes() {
-    this.router.get("/:hotelId", this.getHotelById.bind(this));
-    this.router.post("/", this.createHotel.bind(this));
-    this.router.delete("/:hotelId", this.deleteHotel.bind(this));
-    this.router.put("/:hotelId", this.updateHotel.bind(this));
+    this.router.get("/:hotelId",this.getHotelById.bind(this));
+    this.router.post("/",verifyRoleMiddleware('admin'), this.createHotel.bind(this));
+    this.router.delete("/:hotelId", verifyRoleMiddleware('admin'), this.deleteHotel.bind(this));
+    this.router.put("/:hotelId", verifyRoleMiddleware('admin'), this.updateHotel.bind(this));
   }
 }

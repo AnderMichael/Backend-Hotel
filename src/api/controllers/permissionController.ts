@@ -4,6 +4,7 @@ import { PermissionService } from '../../app/services/permissionService';
 import { CreatePermissionDto } from '../../app/dtos/create.permission.dto';
 import { PermissionDto } from '../../app/dtos/permission.dto';
 import { UpdatePermissionDto } from '../../app/dtos/update.permission.dto';
+import {verifyRoleMiddleware} from "../middleware/verifyRole";
 
 export class PermissionController {
     public router: Router;
@@ -75,9 +76,9 @@ export class PermissionController {
     }
 
     public routes() {
-        this.router.get('/:id', this.getPermissionById.bind(this));
-        this.router.post('/', this.createPermission.bind(this));
-        this.router.put('/:id', this.updatePermission.bind(this));
-        this.router.delete('/:id', this.deletePermission.bind(this));
+        this.router.get('/:id', verifyRoleMiddleware('admin'), this.getPermissionById.bind(this));
+        this.router.post('/', verifyRoleMiddleware('admin'), this.createPermission.bind(this));
+        this.router.put('/:id', verifyRoleMiddleware('admin'), this.updatePermission.bind(this));
+        this.router.delete('/:id', verifyRoleMiddleware('admin'), this.deletePermission.bind(this));
     }
 }

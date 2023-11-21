@@ -16,7 +16,10 @@ import { UserController } from "./userController";
 import {RoleRepositoryImpl} from "../../infrastructure/repositories/roleRepository";
 import {RoleService} from "../../app/services/roleService";
 import {RoleController} from "./roleController";
-import { RedisCacheService } from "../../infrastructure/config/cache/redis.cache";
+import {Router} from "express";
+import {PermissionRepositoryImpl} from "../../infrastructure/repositories/permissionRepositoryImpl";
+import {PermissionService} from "../../app/services/permissionService";
+import {PermissionController} from "./permissionController";
 
 const API: string = "/api";
 
@@ -29,28 +32,17 @@ const roomRepository = new RoomRepositoryImpl();
 const hotelRepository = new HotelRepositoryImpl();
 const reservationRepository = new ReservationRepositoryImpl();
 const roleRepository = new RoleRepositoryImpl();
-
-const userService = new UserService(userRepository);
-const userController = new UserController(userService);
-
-const authService = new AuthService(userRepository, encrypt);
-const authController = new AuthController(authService);
-
-const roomService = new RoomService(roomRepository, hotelRepository);
-const roomController = new RoomController(roomService);
-
-const hotelService = new HotelService(hotelRepository, roomRepository, cacheService);
-const hotelController = new HotelController(hotelService);
-
 const roleService = new RoleService(roleRepository);
 const roleController = new RoleController(roleService);
+const hotelService = new HotelService(hotelRepository);
+const hotelController = new HotelController(hotelService);
+const roomRepository = new RoomRepositoryImpl()
+const roomService = new RoomService(roomRepository, hotelRepository);
+const roomController = new RoomController(roomService);
+const permissionRepository = new PermissionRepositoryImpl()
+const permissionService = new PermissionService(permissionRepository);
+const permissionController = new PermissionController(permissionService);
 
-const reservationService = new ReservationService(
-  reservationRepository,
-  userRepository,
-  roomRepository
-);
-const reservationController = new ReservationController(reservationService);
 
 export const routes = (server: any) => {
   server.use(`${API}/users`, userController.router);
